@@ -4,7 +4,8 @@ var UserModel = Backbone.Model.extend({
 	}
 })
 
-var IssueModel = Backbone.Model.extend({
+// status options: 'unassigned', 'in progress', 'completed'
+var TaskModel = Backbone.Model.extend({
 	defaults: {
 		title:'',
 		description:'',
@@ -20,6 +21,6 @@ var UserCollection = Backbone.Collection.extend({
   activeUser:null
 })
 
-var IssueCollection = Backbone.Collection.extend({
-	model:IssueModel
+var TaskCollection = Backbone.Collection.extend({
+	model:TaskModel
 })

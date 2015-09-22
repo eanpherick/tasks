@@ -16,7 +16,15 @@ var GUI = (function() { //IIFE for all Views
   });
 
   var TaskCollectionView = Backbone.View.extend({
-
+    initialize: function(opts) {
+      _.extend(this, opts);
+      this.render();
+      // $("#app").html(this.$el);
+    },
+    render: function() {
+      var output = "<h1>I am a TaskCollectionView</h1>";
+      this.$el.html(output);
+    },
   });
 
   // would have two TaskCollectionViews (for unassigned tasks and the current user's tasks)
@@ -31,9 +39,18 @@ var GUI = (function() { //IIFE for all Views
     },
     render: function() {
       console.log(this.tasks);
-      var output = "<h1>Hello " + this.user.get("username") + "</h>";
-      output += "<button id='logout'>Log Out</button>";
-      this.$el.html(output);
+      // var $output = "<h1>Hello " + this.user.get("username") + "</h1>";
+      var $output = $("<div>")
+      $output.append($("<h1>").html("Hello " + this.user.get("username")));
+      $output.append($("<button id='logout'>").html("Log Out"));
+      $output.append($("<button id='addTask'>").html("Add Task"));
+      var $taskViews = $("<div id='taskViews'>");
+      var taskCollectionView1 = new TaskCollectionView({collection:app.gui.tasks});
+      var taskCollectionView2 = new TaskCollectionView({collection:app.gui.tasks});
+      $taskViews.append(taskCollectionView1.$el);
+      $taskViews.append(taskCollectionView2.$el);
+      $output.append($taskViews);
+      this.$el = $output;
     },
     events: {
     "click button#logout": "logout"

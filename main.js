@@ -14,7 +14,7 @@ $(function() { //when DOM is ready...
     username: 'Pilar'
   }]);
 
-  app.tasks = new IssueCollection([{
+  app.tasks = new TaskCollection([{
     title: 'Eat Lunch',
     description: 'it will be good',
     creator: 'Erik',

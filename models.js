@@ -16,7 +16,8 @@ var IssueModel = Backbone.Model.extend({
 })
 
 var UserCollection = Backbone.Collection.extend({
-	model:UserModel
+	model:UserModel,
+  activeUser:null
 })
 
 var IssueCollection = Backbone.Collection.extend({

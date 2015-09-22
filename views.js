@@ -21,8 +21,17 @@ var GUI = (function() { //IIFE for all Views
 
   // would have two TaskCollectionViews (for unassigned tasks and the current user's tasks)
   // would also the name of the current user, a logout button, and a Create Task button
-  var UserView = Backbone.View.extend({
-
+  var HomePageView = Backbone.View.extend({
+    user: null,
+    tasks: null,
+    initialize: function(opts) {
+      _.extend(this, opts);
+      this.render();
+    },
+    render: function() {
+      console.log(this.tasks);
+      this.$el.html("<button>" + this.user.get("username") + "</button>")
+    }
   });
 
   // a list of known users to choose from
@@ -35,17 +44,21 @@ var GUI = (function() { //IIFE for all Views
       "click button#login": "login"
     },
     login: function(e) {
-      console.log("clicked:");
-      console.log(e);
+      e.preventDefault();
+      var id = $("select#usernames").val();
+      var selectedUser = this.collection.get(id)
+      var homePageView = new HomePageView({user: selectedUser, el: "#app", tasks: app.gui.tasks})
+
+      // this.model.set('username', $("select#usernames").val());
     },
     render: function() {
-      // console.log(this.collection);
-      var usernames = this.collection.pluck("username");
-      var output = "<h1>Welcome!</h1><select><option></option>"
-      usernames.forEach(function(username) {
-        output += "<option value='" + username + "'>" + username + "</option>"
+      console.log(this.collection);
+      var users = this.collection.models;
+      var output = "<h1>Welcome!</h1><form><select id='usernames'><option></option>"
+      users.forEach(function(user) {
+        output += "<option value='" + user.cid + "'>" + user.get("username") + "</option>"
       })
-      output += "</select><button id='login'>LOG IN</button>"
+      output += "</select><button type='submit' name='submit' id='login'>LOG IN</button></form>"
       this.$el.html(output);
     }
   });
@@ -56,13 +69,18 @@ var GUI = (function() { //IIFE for all Views
     // tasks is collection of Task models
     // el is selector for where GUI connects in DOM
     //...
-    console.log("GUI");
+    // console.log("GUI");
     this.users = users; // a UsersCollection
     this.tasks = tasks; // an IssuesCollection
+    this.currentUser = "";
     var loginView = new LoginView({
       collection: this.users,
       el: "#app"
-    });
+    })
+    // var taskCollectionView = new TaskCollectionView({
+    //   collection: this.tasks,
+    //   el: "#app";
+    // })
   }
 
   return GUI;

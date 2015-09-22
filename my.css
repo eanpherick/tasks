@@ -1,5 +1,5 @@
 body {
-  background-color: green;
+  background-color: silver;
 }
 
 select {
@@ -20,4 +20,18 @@ select {
     -webkit-appearance:none;
     -moz-appearance:none;
     appearance:none;
+}
+
+div.task-collection {
+  padding: 10px;
+  border: 1px solid black;
+  margin-bottom: 10px;
+}
+
+div.task-collection.unassigned {
+  background-color: #FCC;
+}
+
+div.task-collection.user {
+  background-color: #CCF;
 }

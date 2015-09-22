@@ -64,7 +64,7 @@ var GUI = (function() { //IIFE for all Views
       var $output = $("<div>")
       $output.append($("<h1>").html("Hello " + this.user.get("username")));
       $output.append($("<button id='logout'>").html("Log Out"));
-      $output.append($("<button id='addTask'>").html("Add Task"));
+      $output.append($("<button id='add-task'>").html("Add Task"));
       var $taskViews = $("<div id='taskViews'>");
       var taskCollectionView1 = new TaskCollectionView({
         collection: app.gui.tasks,
@@ -77,17 +77,22 @@ var GUI = (function() { //IIFE for all Views
       $taskViews.append(taskCollectionView1.$el);
       $taskViews.append(taskCollectionView2.$el);
       $output.append($taskViews);
-      this.$el = $output;
+      this.$el.html($output[0]);
     },
     events: {
-      "click button#logout": "logout"
+      "click button#logout": "logout",
+      "click button#add-task": "addTask"
     },
     logout: function(e) {
+      console.log("log out");
       var loginView = new LoginView({
         collection: app.gui.users,
         el: "#app"
       })
-      this.remove(); // TODO: remove the view, but not the main #app div
+      this.remove();
+    },
+    addTask: function(e) {
+      console.log(e);
     }
   });
 
@@ -101,6 +106,7 @@ var GUI = (function() { //IIFE for all Views
       "click button#login": "login"
     },
     login: function(e) {
+      console.log("clicked log in");
       e.preventDefault();
       var id = $("select#usernames").val();
       var selectedUser = this.collection.get(id);
@@ -109,8 +115,7 @@ var GUI = (function() { //IIFE for all Views
         user: selectedUser,
         tasks: app.gui.tasks
       })
-
-      // this.model.set('username', $("select#usernames").val());
+      // this.remove();
     },
     render: function() {
       var users = this.collection.models;

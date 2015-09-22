@@ -27,11 +27,24 @@ var GUI = (function() { //IIFE for all Views
     initialize: function(opts) {
       _.extend(this, opts);
       this.render();
+      $("#app").html(this.$el);
     },
     render: function() {
       console.log(this.tasks);
-      this.$el.html("<button>" + this.user.get("username") + "</button>")
-    }
+      var output = "<h1>Hello " + this.user.get("username") + "</h>";
+      output += "<button id='logout'>Log Out</button>";
+      this.$el.html(output);
+    },
+    events: {
+    "click button#logout": "logout"
+  },
+  logout: function(e) {
+    var loginView = new LoginView({
+      collection: app.gui.users,
+      el: "#app"
+    })
+    this.remove(); // TODO: remove the view, but not the main #app div
+  }
   });
 
   // a list of known users to choose from
@@ -47,7 +60,7 @@ var GUI = (function() { //IIFE for all Views
       e.preventDefault();
       var id = $("select#usernames").val();
       var selectedUser = this.collection.get(id)
-      var homePageView = new HomePageView({user: selectedUser, el: "#app", tasks: app.gui.tasks})
+      var homePageView = new HomePageView({user: selectedUser, tasks: app.gui.tasks})
 
       // this.model.set('username', $("select#usernames").val());
     },
@@ -75,7 +88,7 @@ var GUI = (function() { //IIFE for all Views
     this.currentUser = "";
     var loginView = new LoginView({
       collection: this.users,
-      el: "#app"
+      // el: "#app"
     })
     // var taskCollectionView = new TaskCollectionView({
     //   collection: this.tasks,

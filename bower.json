@@ -1,0 +1,22 @@
+{
+  "name": "backbone-issue-tracker",
+  "version": "0.0.0",
+  "homepage": "https://github.com/kkeh/tracker",
+  "authors": [
+    "Erik P. Hansen <eph@erikphansen.com>"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "backbone": "~1.2.3",
+    "jquery": "~2.1.4",
+    "lodash": "~3.10.1",
+    "normalize-css": "normalize.css#~3.0.3"
+  }
+}

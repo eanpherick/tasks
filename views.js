@@ -8,13 +8,11 @@ var GUI = (function() { //IIFE for all Views
     initialize: function(opts) {
       _.extend(this, opts);
       this.render();
-      // $("#app").html(this.$el);
+      console.log("User job is " + this.model.get('title'));
     },
     render: function() {
       console.log(this);
-      var $taskCollectionView = $("<div class='task-collection " + this.kind + "'>")
-      $taskCollectionView.append($("<h1>").html("I am a task collection view"));
-      this.$el = $taskCollectionView;
+      this.$el.html('<p>' + this.model.get('title') + '</p>')
     }
   });
 
@@ -35,17 +33,34 @@ var GUI = (function() { //IIFE for all Views
     },
     filterCollection: function() {
       if (this.kind === "unassigned") {
-        this.relevantTasks = this.collection.where({status: "unassigned"});
+        this.relevantTasks = this.collection.where({
+          status: "unassigned"
+        });
       } else {
-        this.relevantTasks = this.collection.where({assignee: app.currentUser.get("username")});
+        var assigned = this.collection.where({
+          assignee: app.currentUser.get("username")
+        });
+        var created = this.collection.where({
+          creator: app.currentUser.get("username")
+        });
+        this.relevantTasks = _.union(assigned, created);
       }
-      console.log(this.relevantTasks);
     },
     render: function() {
-      var $taskCollectionView = $("<div class='task-collection " + this.kind + "'>")
+      var $taskCollectionView = $("<div>")
       $taskCollectionView.append($("<h1>").html("I am a task collection view"));
-      // make a new TaskView for each this.collection
-      this.$el = $taskCollectionView;
+      // make a new TaskView for each this.relevantTasks
+      this.relevantTasks.forEach(function(e) {
+        console.log(e.get('title'))
+        var taskView = new TaskView({
+          model: e,
+        });
+        $taskCollectionView.append(taskView.$el);
+        // $taskViews.append(taskCollectionView2.$el);
+      })
+      this.$el.html($taskCollectionView.html());
+      this.$el.addClass('task-collection');
+      this.$el.addClass(this.kind);
     }
   });
 
@@ -77,7 +92,7 @@ var GUI = (function() { //IIFE for all Views
       $taskViews.append(taskCollectionView1.$el);
       $taskViews.append(taskCollectionView2.$el);
       $output.append($taskViews);
-      this.$el.html($output[0]);
+      this.$el.html($output.html());
     },
     events: {
       "click button#logout": "logout",
@@ -130,22 +145,11 @@ var GUI = (function() { //IIFE for all Views
 
   // generic ctor to represent interface:
   function GUI(users, tasks, el) {
-    // users is collection of User models
-    // tasks is collection of Task models
-    // el is selector for where GUI connects in DOM
-    //...
-    // console.log("GUI");
     this.users = users; // a UsersCollection
     this.tasks = tasks; // an IssuesCollection
-
     var loginView = new LoginView({
       collection: this.users
-      // el: "#app"
     })
-    // var taskCollectionView = new TaskCollectionView({
-    //   collection: this.tasks,
-    //   el: "#app";
-    // })
   }
 
   return GUI;

@@ -54,7 +54,34 @@ var GUI = (function() { //IIFE for all Views
    You'll need a view with input fields for the user to fill in when creating a new task. It should probably have both a create and cancel button. The location and format of the view is up to you.
    */
   var CreateTaskView = Backbone.View.extend({
-
+    initialize: function(opts) {
+      _.extend(this, opts);
+      // console.log(this.homePage)
+    },
+    render: function() {
+      var $form = $('<form id="form">');
+      $form.append($('<input type="text" name="title" placeholder="Enter Task Title">'));
+      $form.append($('<input type="type" name="description" placeholder="Enter Task Description">'))
+      $form.append($('<input type="submit" name="submit" value="Submit">'))
+      this.$el.append($form)
+    },
+    events: {
+      "submit #form": "submitForm"
+    },
+    submitForm: function(e) {
+      e.preventDefault();
+      console.log(e);
+      var newTitle = $(e.target).children("input[name='title']").val();
+      var newDescription = $(e.target).children("input[name='description']").val();
+      console.log(newTitle)
+      console.log(newDescription)
+      this.model.set({
+        'title': newTitle,
+        'description': newDescription,
+      })
+      this.homePage.tasks.add(this.model)
+      this.remove();
+    }
   });
 
   var TaskCollectionView = Backbone.View.extend({
@@ -122,6 +149,7 @@ var GUI = (function() { //IIFE for all Views
       this.$el.append($("<h1>").html("Hello " + this.user.get("username")));
       this.$el.append($("<button id='logout'>").html("Log Out"));
       this.$el.append($("<button id='add-task'>").html("Add Task"));
+      this.$el.append($("<div id='task-form'>"));
       var $taskViews = $("<div id='taskViews'>");
       var taskCollectionView1 = new TaskCollectionView({
         collection: app.gui.tasks,
@@ -137,7 +165,7 @@ var GUI = (function() { //IIFE for all Views
     },
     events: {
       "click button#logout": "logout",
-      "click button#add-task": "addTask"
+      "click button#add-task": "showNewTaskView"
     },
     logout: function(e) {
       var loginView = new LoginView({
@@ -145,9 +173,17 @@ var GUI = (function() { //IIFE for all Views
       })
       this.remove();
     },
-    addTask: function(e) {
+    showNewTaskView: function(e) {
       // TODO: this method will create a CreateTaskView, not immediately create a task
-      this.tasks.add({creator:this.user.get("username")});
+      var newTask = new TaskModel({
+        creator: this.user.get('username')
+      });
+      var createTaskView = new CreateTaskView({
+        model: newTask,
+        homePage: this
+      });
+      createTaskView.render()
+      $("#task-form").append(createTaskView.$el)
     }
   });
 

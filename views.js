@@ -8,10 +8,8 @@ var GUI = (function() { //IIFE for all Views
     initialize: function(opts) {
       _.extend(this, opts);
       this.render();
-      console.log("User job is " + this.model.get('title'));
     },
     render: function() {
-      console.log(this);
       var status = this.model.get('status');
       var assignee = this.model.get('assignee');
       assignee = assignee === "" ? "unassigned" : assignee;
@@ -60,7 +58,6 @@ var GUI = (function() { //IIFE for all Views
       _.extend(this, opts);
       this.filterCollection();
       this.render();
-      // $("#app").html(this.$el);
     },
     filterCollection: function() {
       if (this.kind === "unassigned") {
@@ -81,9 +78,9 @@ var GUI = (function() { //IIFE for all Views
       var $taskCollectionView = $("<div>");
       var title = this.kind === 'unassigned' ? "Unassigned Tasks" : app.currentUser.get("username") + "'s Tasks"
       $taskCollectionView.append($("<h1>").html(title));
+      $taskCollectionView.append($("<button>").html("TEST BUTTON"));
       // make a new TaskView for each this.relevantTasks
       this.relevantTasks.forEach(function(e) {
-        console.log(e.get('title'))
         var taskView = new TaskView({
           model: e,
         });
@@ -93,6 +90,12 @@ var GUI = (function() { //IIFE for all Views
       this.$el.html($taskCollectionView.html());
       this.$el.addClass('task-collection');
       this.$el.addClass(this.kind);
+    },
+    events: {
+      "click button": "clickedButton"
+    },
+    clickedButton: function(e) {
+      console.log("clicked the test button");
     }
   });
 

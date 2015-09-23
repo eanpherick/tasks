@@ -23,11 +23,27 @@ var GUI = (function() { //IIFE for all Views
       if (status === "unassigned") {
         $content.append($("<button class='claim'>").html("CLAIM"));
       } else if (assignee === app.currentUser.get("username")) {
-        $content.append($("<button class='done'>").html("DONE"));
         $content.append($("<button class='quit'>").html("QUIT"));
+        $content.append($("<button class='done'>").html("DONE"));
       }
       this.$el.html($content.html());
       this.$el.addClass("task-view");
+    },
+    events: {
+      "click button.quit": "quitTask",
+      "click button.done": "completeTask",
+      "click button.claim": "claimTask"
+    },
+    quitTask: function(e) {
+      console.log("quitTask");
+      console.log(e);
+      console.log(this);
+    },
+    completeTask: function(e) {
+      console.log("completeTask");
+    },
+    claimTask: function(e) {
+      console.log("claimTask");
     }
   });
 

@@ -48,5 +48,6 @@ div.task-view {
 }
 
 div.task-view button.done {
-  align: right;
+  margin-left: auto;
+  margin-right: 0;
 }

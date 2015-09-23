@@ -7,8 +7,8 @@ var UserModel = Backbone.Model.extend({
 // status options: 'unassigned', 'in progress', 'completed'
 var TaskModel = Backbone.Model.extend({
 	defaults: {
-		title:'',
-		description:'',
+		title:'New Task',
+		description:'task details...',
 		creator:'',
 		assignee:'',
 		status:'unassigned',

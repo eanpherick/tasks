@@ -125,8 +125,13 @@ var GUI = (function() { //IIFE for all Views
     },
     render: function() {
       this.filterCollection();
-      var title = this.kind === 'unassigned' ? "Unassigned Tasks" : app.currentUser.get("username") + "'s Tasks"
-
+      // var title = this.kind === 'unassigned' ? "Unassigned Tasks" : app.currentUser.get("username") + "'s Tasks"
+      var title = "Unassigned Tasks"
+      if(this.kind === 'user'){
+        title = app.currentUser.get("username") + "'s Tasks"
+      } else if (this.kind === 'completed') {
+        title = "Completed Tasks"
+      };
       this.$el.html(""); // reset the $el's <div> contents to nothing so that further `render()` calls don't just keep appended to the old stuff
       this.$el.append($("<h1>").html(title));
       // make a new TaskView for each this.relevantTasks

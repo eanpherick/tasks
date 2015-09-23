@@ -19,18 +19,12 @@ var GUI = (function() { //IIFE for all Views
       $content.append($("<h1>").html(this.model.get('title')));
       $content.append($("<h2>").html(this.model.get('description')));
       $content.append($("<p class='creator'>").html("CREATED BY: " + this.model.get('creator')));
-      $content.append($("<p class='assignee'>").html(assignee));
+      $content.append($("<p class='assignee'>").html("ASSIGNED TO: " + assignee));
       if (status === "unassigned") {
-        // show a claim button
         $content.append($("<button class='claim'>").html("CLAIM"));
-        // $content.append($("<button class='claim'>").html("CLAIM"));
-        // show STATUS: unassigned
-      } else {
-        // show a DONE button
+      } else if (assignee === app.currentUser.get("username")) {
         $content.append($("<button class='done'>").html("DONE"));
         $content.append($("<button class='quit'>").html("QUIT"));
-        // show a QUIT button
-        // show ASSIGNEE: the assignee
       }
       this.$el.html($content.html());
       this.$el.addClass("task-view");

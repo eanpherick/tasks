@@ -61,12 +61,14 @@ var GUI = (function() { //IIFE for all Views
     render: function() {
       var $form = $('<form id="form">');
       $form.append($('<input type="text" name="title" placeholder="Enter Task Title">'));
-      $form.append($('<input type="type" name="description" placeholder="Enter Task Description">'))
-      $form.append($('<input type="submit" name="submit" value="Submit">'))
+      $form.append($('<input type="type" name="description" placeholder="Enter Task Description">'));
+      $form.append($('<input type="submit" name="submit" value="Submit">'));
+      $form.append($('<button id="cancel">').html('Cancel'));
       this.$el.append($form)
     },
     events: {
-      "submit #form": "submitForm"
+      "submit #form": "submitForm",
+      "click #cancel": function(e){e.preventDefault(); this.remove()}
     },
     submitForm: function(e) {
       e.preventDefault();
@@ -104,22 +106,27 @@ var GUI = (function() { //IIFE for all Views
     },
     filterCollection: function() {
       if (this.kind === "unassigned") {
-        this.relevantTasks = this.collection.where({
-          status: "unassigned"
-        });
-      } else {
-        var assigned = this.collection.where({
-          assignee: app.currentUser.get("username")
-        });
-        var created = this.collection.where({
-          creator: app.currentUser.get("username")
-        });
+        this.relevantTasks = this.collection.filter(function(task){
+          return task.get('status') === "unassigned"
+        })
+      } else if (this.kind === "user"){
+        var assigned = this.collection.filter(function(task){
+          return task.get('status') === "in progress" && task.get('assignee') === app.currentUser.get("username");
+        })
+        var created = this.collection.filter(function(task){
+          return task.get('creator') === app.currentUser.get("username") && task.get('status') !== "completed";
+        })
         this.relevantTasks = _.union(assigned, created);
+      } else {
+        this.relevantTasks = this.collection.where({
+          status: "completed"
+        });
       }
     },
     render: function() {
       this.filterCollection();
       var title = this.kind === 'unassigned' ? "Unassigned Tasks" : app.currentUser.get("username") + "'s Tasks"
+
       this.$el.html(""); // reset the $el's <div> contents to nothing so that further `render()` calls don't just keep appended to the old stuff
       this.$el.append($("<h1>").html(title));
       // make a new TaskView for each this.relevantTasks
@@ -151,16 +158,21 @@ var GUI = (function() { //IIFE for all Views
       this.$el.append($("<button id='add-task'>").html("Add Task"));
       this.$el.append($("<div id='task-form'>"));
       var $taskViews = $("<div id='taskViews'>");
-      var taskCollectionView1 = new TaskCollectionView({
+      var unassignedTasks = new TaskCollectionView({
         collection: app.gui.tasks,
         kind: "unassigned"
       });
-      var taskCollectionView2 = new TaskCollectionView({
+      var userTasks = new TaskCollectionView({
         collection: app.gui.tasks,
         kind: "user"
       });
-      $taskViews.append(taskCollectionView1.$el);
-      $taskViews.append(taskCollectionView2.$el);
+      var completedTasks = new TaskCollectionView({
+        collection: app.gui.tasks,
+        kind: "completed"
+      }); 
+      $taskViews.append(unassignedTasks.$el);
+      $taskViews.append(userTasks.$el);
+      $taskViews.append(completedTasks.$el);
       this.$el.append($taskViews);
     },
     events: {

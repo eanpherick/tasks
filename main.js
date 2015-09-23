@@ -31,11 +31,32 @@ $(function() { //when DOM is ready...
   },
   {
     title: 'sleep',
-    description: 'it will be hard',
-    creator: 'Kathleen',
-    assignee: 'Erik',
+    description: 'it will be relaxing',
+    creator: 'Pilar',
+    assignee: 'Pilar',
     status: 'in progress'
-  }
+  },
+  {
+    title: 'wake up',
+    description: 'it will suck',
+    creator: 'RZA',
+    assignee: '',
+    status: 'unassigned'
+  },
+  {
+    title: 'take a bath',
+    description: 'it will be wet',
+    creator: 'Kathleen',
+    assignee: 'RZA',
+    status: 'in progress'
+  },
+  {
+    title: 'brush hair',
+    description: 'it will be pointless',
+    creator: 'Erik',
+    assignee: '',
+    status: 'unassigned'
+  },
 
   ]);
 

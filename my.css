@@ -46,3 +46,8 @@ div.task-view {
   margin: 5px 0px;
   padding: 5px;
 }
+
+div.task-view button.done {
+  margin-left: auto;
+  margin-right: 0;
+}

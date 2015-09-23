@@ -8,12 +8,36 @@ var GUI = (function() { //IIFE for all Views
     initialize: function(opts) {
       _.extend(this, opts);
       this.render();
-      console.log("User job is " + this.model.get('title'));
     },
     render: function() {
-      console.log(this);
-      this.$el.html('<p>' + this.model.get('title') + '</p>');
+      var status = this.model.get('status');
+      var assignee = this.model.get('assignee');
+      assignee = assignee === "" ? "unassigned" : assignee;
+      this.$el.append($("<h1>").html(this.model.get('title')));
+      this.$el.append($("<h2>").html(this.model.get('description')));
+      this.$el.append($("<p class='creator'>").html("CREATED BY: " + this.model.get('creator')));
+      this.$el.append($("<p class='assignee'>").html("ASSIGNED TO: " + assignee));
+      if (status === "unassigned") {
+        this.$el.append($("<button class='claim'>").html("CLAIM"));
+      } else if (assignee === app.currentUser.get("username")) {
+        this.$el.append($("<button class='quit'>").html("QUIT"));
+        this.$el.append($("<button class='done'>").html("DONE"));
+      }
       this.$el.addClass("task-view");
+    },
+    events: {
+      "click button.quit": "quitTask",
+      "click button.done": "completeTask",
+      "click button.claim": "claimTask"
+    },
+    quitTask: function(e) {
+      console.log("quitTask");
+    },
+    completeTask: function(e) {
+      console.log("completeTask");
+    },
+    claimTask: function(e) {
+      console.log("claimTask");
     }
   });
 
@@ -30,7 +54,6 @@ var GUI = (function() { //IIFE for all Views
       _.extend(this, opts);
       this.filterCollection();
       this.render();
-      // $("#app").html(this.$el);
     },
     filterCollection: function() {
       if (this.kind === "unassigned") {
@@ -48,19 +71,16 @@ var GUI = (function() { //IIFE for all Views
       }
     },
     render: function() {
-      var $taskCollectionView = $("<div>");
       var title = this.kind === 'unassigned' ? "Unassigned Tasks" : app.currentUser.get("username") + "'s Tasks"
-      $taskCollectionView.append($("<h1>").html(title));
+      this.$el.append($("<h1>").html(title));
       // make a new TaskView for each this.relevantTasks
+      var self = this;
       this.relevantTasks.forEach(function(e) {
-        console.log(e.get('title'))
         var taskView = new TaskView({
           model: e,
         });
-        $taskCollectionView.append(taskView.$el);
-        // $taskViews.append(taskCollectionView2.$el);
+        self.$el.append(taskView.$el);
       })
-      this.$el.html($taskCollectionView.html());
       this.$el.addClass('task-collection');
       this.$el.addClass(this.kind);
     }
@@ -77,11 +97,9 @@ var GUI = (function() { //IIFE for all Views
       $("#app").html(this.$el);
     },
     render: function() {
-      // var $output = "<h1>Hello " + this.user.get("username") + "</h1>";
-      var $output = $("<div>")
-      $output.append($("<h1>").html("Hello " + this.user.get("username")));
-      $output.append($("<button id='logout'>").html("Log Out"));
-      $output.append($("<button id='add-task'>").html("Add Task"));
+      this.$el.append($("<h1>").html("Hello " + this.user.get("username")));
+      this.$el.append($("<button id='logout'>").html("Log Out"));
+      this.$el.append($("<button id='add-task'>").html("Add Task"));
       var $taskViews = $("<div id='taskViews'>");
       var taskCollectionView1 = new TaskCollectionView({
         collection: app.gui.tasks,
@@ -93,23 +111,20 @@ var GUI = (function() { //IIFE for all Views
       });
       $taskViews.append(taskCollectionView1.$el);
       $taskViews.append(taskCollectionView2.$el);
-      $output.append($taskViews);
-      this.$el.html($output.html());
+      this.$el.append($taskViews);
     },
     events: {
       "click button#logout": "logout",
       "click button#add-task": "addTask"
     },
     logout: function(e) {
-      console.log("log out");
       var loginView = new LoginView({
-        collection: app.gui.users,
-        el: "#app"
+        collection: app.gui.users
       })
       this.remove();
     },
     addTask: function(e) {
-      console.log(e);
+      console.log("add task");
     }
   });
 
@@ -123,7 +138,6 @@ var GUI = (function() { //IIFE for all Views
       "click button#login": "login"
     },
     login: function(e) {
-      console.log("clicked log in");
       e.preventDefault();
       var id = $("select#usernames").val();
       var selectedUser = this.collection.get(id);
@@ -132,7 +146,7 @@ var GUI = (function() { //IIFE for all Views
         user: selectedUser,
         tasks: app.gui.tasks
       })
-      // this.remove();
+      this.remove();
     },
     render: function() {
       var users = this.collection.models;

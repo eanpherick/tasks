@@ -7,23 +7,31 @@ var GUI = (function() { //IIFE for all Views
   var TaskView = Backbone.View.extend({
     initialize: function(opts) {
       _.extend(this, opts);
+      this.listenTo(this.model, 'change', this.updateTask);
       this.render();
     },
     render: function() {
       var status = this.model.get('status');
       var assignee = this.model.get('assignee');
       assignee = assignee === "" ? "unassigned" : assignee;
+      this.$el.html(""); // reset the $el's <div> contents to nothing so that further `render()` calls don't just keep appended to the old stuff
       this.$el.append($("<h1>").html(this.model.get('title')));
       this.$el.append($("<h2>").html(this.model.get('description')));
       this.$el.append($("<p class='creator'>").html("CREATED BY: " + this.model.get('creator')));
       this.$el.append($("<p class='assignee'>").html("ASSIGNED TO: " + assignee));
       if (status === "unassigned") {
         this.$el.append($("<button class='claim'>").html("CLAIM"));
-      } else if (assignee === app.currentUser.get("username")) {
+      } else if (assignee === app.currentUser.get("username") && status !== "completed") {
         this.$el.append($("<button class='quit'>").html("QUIT"));
         this.$el.append($("<button class='done'>").html("DONE"));
-      }
+      } // TODO: completed tasks should be marked completed in some way. or they should be removed or moved to a new TaskCollectionView for completed tasks
       this.$el.addClass("task-view");
+    },
+    updateTask: function(e) {
+      // TODO: this currently is not really used because the entire TaskCollectionView will update if ANY TaskModel changes
+      console.log("updateTask() called with e:");
+      console.log(e);
+      this.render();
     },
     events: {
       "click button.quit": "quitTask",
@@ -31,13 +39,14 @@ var GUI = (function() { //IIFE for all Views
       "click button.claim": "claimTask"
     },
     quitTask: function(e) {
-      console.log("quitTask");
+      this.model.set({"assignee": "", "status": "unassigned"});
     },
     completeTask: function(e) {
+      this.model.set({"status": "completed"})
       console.log("completeTask");
     },
     claimTask: function(e) {
-      console.log("claimTask");
+      this.model.set({"assignee": app.currentUser.get("username"), "status": "in progress"});
     }
   });
 
@@ -52,7 +61,18 @@ var GUI = (function() { //IIFE for all Views
     relevantTasks: [],
     initialize: function(opts) {
       _.extend(this, opts);
-      this.filterCollection();
+      this.listenTo(this.collection, 'add', this.addTask);
+      this.listenTo(this.collection, 'change', this.updateTask);
+      this.listenTo(this.collection, 'remove', this.removeTask);
+      this.render();
+    },
+    addTask: function(e) {
+      this.render();
+    },
+    updateTask: function(e) {
+      this.render();
+    },
+    removeTask: function(e) {
       this.render();
     },
     filterCollection: function() {
@@ -71,7 +91,9 @@ var GUI = (function() { //IIFE for all Views
       }
     },
     render: function() {
+      this.filterCollection();
       var title = this.kind === 'unassigned' ? "Unassigned Tasks" : app.currentUser.get("username") + "'s Tasks"
+      this.$el.html(""); // reset the $el's <div> contents to nothing so that further `render()` calls don't just keep appended to the old stuff
       this.$el.append($("<h1>").html(title));
       // make a new TaskView for each this.relevantTasks
       var self = this;
@@ -124,7 +146,8 @@ var GUI = (function() { //IIFE for all Views
       this.remove();
     },
     addTask: function(e) {
-      console.log("add task");
+      // TODO: this method will create a CreateTaskView, not immediately create a task
+      this.tasks.add({creator:this.user.get("username")});
     }
   });
 

@@ -12,7 +12,8 @@ var GUI = (function() { //IIFE for all Views
     },
     render: function() {
       console.log(this);
-      this.$el.html('<p>' + this.model.get('title') + '</p>')
+      this.$el.html('<p>' + this.model.get('title') + '</p>');
+      this.$el.addClass("task-view");
     }
   });
 
@@ -47,8 +48,9 @@ var GUI = (function() { //IIFE for all Views
       }
     },
     render: function() {
-      var $taskCollectionView = $("<div>")
-      $taskCollectionView.append($("<h1>").html("I am a task collection view"));
+      var $taskCollectionView = $("<div>");
+      var title = this.kind === 'unassigned' ? "Unassigned Tasks" : app.currentUser.get("username") + "'s Tasks"
+      $taskCollectionView.append($("<h1>").html(title));
       // make a new TaskView for each this.relevantTasks
       this.relevantTasks.forEach(function(e) {
         console.log(e.get('title'))

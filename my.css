@@ -2,6 +2,10 @@ body {
   background-color: silver;
 }
 
+p {
+  margin: 0px;
+}
+
 select {
   font-size: 100px;
     padding:5px 20px;
@@ -34,4 +38,11 @@ div.task-collection.unassigned {
 
 div.task-collection.user {
   background-color: #CCF;
+}
+
+div.task-view {
+  border: 1px solid white;
+  background-color: rgba(255, 255, 255, 0.3);
+  margin: 5px 0px;
+  padding: 5px;
 }

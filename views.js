@@ -31,9 +31,6 @@ var GUI = (function() { //IIFE for all Views
       this.$el.addClass("task-view");
     },
     updateTask: function(e) {
-      // TODO: this currently is not really used because the entire TaskCollectionView will update if ANY TaskModel changes
-      console.log("updateTask() called with e:");
-      console.log(e);
       this.render();
     },
     events: {
@@ -42,14 +39,20 @@ var GUI = (function() { //IIFE for all Views
       "click button.claim": "claimTask"
     },
     quitTask: function(e) {
-      this.model.set({"assignee": "", "status": "unassigned"});
+      this.model.set({
+        "assignee": "",
+        "status": "unassigned"
+      });
     },
     completeTask: function(e) {
       this.model.set({"status": "completed", "completedOn": new Date().getTime()});
-      console.log("completeTask");
+    },
     },
     claimTask: function(e) {
-      this.model.set({"assignee": app.currentUser.get("username"), "status": "in progress"});
+      this.model.set({
+        "assignee": app.currentUser.get("username"),
+        "status": "in progress"
+      });
     }
   });
 
@@ -59,7 +62,6 @@ var GUI = (function() { //IIFE for all Views
   var CreateTaskView = Backbone.View.extend({
     initialize: function(opts) {
       _.extend(this, opts);
-      // console.log(this.homePage)
     },
     render: function() {
       var $form = $('<form id="form">');
@@ -71,7 +73,7 @@ var GUI = (function() { //IIFE for all Views
     },
     events: {
       "submit #form": "submitForm",
-      "click #cancel": function(e){e.preventDefault(); this.remove()}
+      "click #cancel": function(e) {e.preventDefault(); this.remove()}
     },
     submitForm: function(e) {
       e.preventDefault();
@@ -83,7 +85,7 @@ var GUI = (function() { //IIFE for all Views
       this.model.set({
         'createdOn': new Date().getTime(),
         'title': newTitle,
-        'description': newDescription,
+        'description': newDescription
       })
       this.homePage.tasks.add(this.model)
       this.remove();
@@ -91,34 +93,40 @@ var GUI = (function() { //IIFE for all Views
   });
 
   var TaskCollectionView = Backbone.View.extend({
-    relevantTasks: [],
+    // relevantTasks: [],
+    // taskViews: [], // this is shared among all TaskCollectionView instances?!?!
     initialize: function(opts) {
+      this.relevantTasks = [];
+      this.taskViews = [];
       _.extend(this, opts);
       this.listenTo(this.collection, 'add', this.addTask);
       this.listenTo(this.collection, 'change', this.updateTask);
-      this.listenTo(this.collection, 'remove', this.removeTask);
+      // this.listenTo(this.collection, 'remove', this.removeTask); // we won't ever remove models. they will just be marked `complete` and archived
+      this.filterCollection();
       this.render();
     },
     addTask: function(e) {
-      this.render();
+      console.log("addTask: " + e.title);
+      this.filterCollection();
+      this.makeTaskView(e);
     },
     updateTask: function(e) {
-      this.render();
-    },
-    removeTask: function(e) {
-      this.render();
+      // this.filterCollection();
+      this.updateTaskView(e);
+      // this.render();
     },
     filterCollection: function() {
+      this.relevantTasks = [];
       if (this.kind === "unassigned") {
         this.relevantTasks = this.collection.filter(function(task){
           return task.get('status') === "unassigned"
         })
       } else if (this.kind === "user"){
         var assigned = this.collection.filter(function(task){
-          return task.get('status') === "in progress" && task.get('assignee') === app.currentUser.get("username");
+          return (task.get('status') === "in progress") && (task.get('assignee') === app.currentUser.get("username"));
         })
         var created = this.collection.filter(function(task){
-          return task.get('creator') === app.currentUser.get("username") && task.get('status') !== "completed";
+          return (task.get('creator') === app.currentUser.get("username")) && (task.get('status') !== "completed");
         })
         this.relevantTasks = _.union(assigned, created);
       } else {
@@ -127,10 +135,66 @@ var GUI = (function() { //IIFE for all Views
         });
       }
     },
-    render: function() {
+    makeTaskView: function(taskModel) {
+      if (!this.hasTask(taskModel, this.relevantTasks)) return; // don't do anything if the taskModel isn't in `relevantTasks` array
+      var taskView = new TaskView({
+        model: taskModel
+      });
+      this.taskViews.push(taskView);
+      console.log("just made a view for " + taskModel.get('title') + " and this.taskView is now: " + this.taskViews);
+      this.$el.append(taskView.$el);
+    },
+    removeTaskView: function(taskModel) {
+      // console.log("CALLED REMOVE TASK VIEW() from " + this.kind);
+      // console.log("this.taskViews:");
+      // console.log(this.taskViews);
+      // if (this.relevantTasks.indexOf(taskModel) !== -1) return;
+      if (this.hasTask(taskModel, this.relevantTasks)) return;
+
+      // for (var i = this.taskViews.length; --i >= 0;){
+      //   if (this.taskViews[i].model === taskModel) {
+      //     this.taskViews[i].remove();
+      //     this.taskViews.splice(i, 1);
+      //   }
+      // }
+      this.taskViews.forEach(function(e, i, a) {
+        if (e.model === taskModel) {
+          // console.log("REMOVE THE VIEW FOR THIS MODEL: ");
+          // console.log(e);
+          e.remove();
+          a.splice(i, 1);
+        }
+      })
+    },
+    // called on this.collection.change event
+    updateTaskView: function(taskModel) {
+      console.log("About to updateTaskView of " + this.kind + " and its taskViews array is: ");
+      console.log(this.taskViews);
+      var oldTasks = this.relevantTasks.slice();
       this.filterCollection();
+      /**
+       If the new model is already in relevantTasks AND in the new relevantTasks, then update the view.
+       Else, if the new model is in the NEW relevantTasks but not the old relevantTasks, add a new view for it.
+       Else, if the new model was in old relevantTasks but NOT in new relevantTasks , remove that view.
+       */
+      // if (oldTasks.indexOf(taskModel) > -1) {
+      if (this.hasTask(taskModel, oldTasks)) {
+        // if (this.relevantTasks.indexOf(taskModel) === -1) {
+        if (!this.hasTask(taskModel, this.relevantTasks)) {
+          console.log(" -- remove the view for: " + taskModel.get("title") + " in " + this.kind);
+          this.removeTaskView(taskModel);
+        } else {
+          console.log(" || do nothing because " + taskModel.get('title') + " is already in " + this.kind);
+        }
+      // } else if (this.relevantTasks.indexOf(taskModel) > -1) {
+      } else if (this.hasTask(taskModel, this.relevantTasks)) {
+        // add a new view for the model
+        console.log(" ++ add a view for: " + taskModel.get("title") + " in " + this.kind);
+        this.makeTaskView(taskModel);
+      }
+    },
+    render: function() {
       this.relevantTasks.reverse();
-      // var title = this.kind === 'unassigned' ? "Unassigned Tasks" : app.currentUser.get("username") + "'s Tasks"
       var title = "Unassigned Tasks"
       if(this.kind === 'user'){
         title = app.currentUser.get("username") + "'s Tasks"
@@ -141,14 +205,18 @@ var GUI = (function() { //IIFE for all Views
       this.$el.append($("<h1>").html(title));
       // make a new TaskView for each this.relevantTasks
       var self = this;
-      this.relevantTasks.forEach(function(e) {
-        var taskView = new TaskView({
-          model: e,
-        });
-        self.$el.append(taskView.$el);
+      this.relevantTasks.forEach(function(task) {
+        self.makeTaskView(task);
       })
       this.$el.addClass('task-collection');
       this.$el.addClass(this.kind);
+    },
+    // helper function to see if a given taskModel is contained in a given array
+    hasTask: function(taskModel, array) {
+      var result = _.find(array, function(model) {
+        return taskModel.get("title") === model.get("title");
+      });
+      return result !== undefined;
     }
   });
 

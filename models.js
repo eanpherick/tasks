@@ -20,12 +20,7 @@ var TaskModel = Backbone.Model.extend({
 	},
   initialize: function(opts) {
     console.log("make a new TaskModel with:", opts);
-  },
-  setProps: function(obj) {
-    _.extend(this, obj); // use the values from obj
-    this.save();
   }
-	// Add methods if needed...
 })
 
 var UserCollection = Backbone.Collection.extend({

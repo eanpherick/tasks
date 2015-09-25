@@ -202,15 +202,15 @@ var GUI = (function() { //IIFE for all Views
       this.$el.append($("<div id='task-form'>"));
       var $taskViews = $("<div id='taskViews'>");
       var unassignedTasks = new TaskCollectionView({
-        collection: app.gui.tasks,
+        collection: app.tasks,
         kind: "unassigned"
       });
       var userTasks = new TaskCollectionView({
-        collection: app.gui.tasks,
+        collection: app.tasks,
         kind: "user"
       });
       var completedTasks = new TaskCollectionView({
-        collection: app.gui.tasks,
+        collection: app.tasks,
         kind: "completed"
       });
       $taskViews.append(unassignedTasks.$el);
@@ -245,7 +245,7 @@ var GUI = (function() { //IIFE for all Views
   // a list of known users to choose from
   var LoginView = Backbone.View.extend({
     initialize: function() {
-      this.listenTo(this.collection, 'add', this.render);
+      this.listenTo(app.users, 'add', this.render);
       this.render();
       $("#app").append(this.$el);
     },
@@ -255,17 +255,17 @@ var GUI = (function() { //IIFE for all Views
     login: function(e) {
       e.preventDefault();
       var id = $("select#usernames").val();
-      var selectedUser = this.collection.get(id);
+      var selectedUser = app.users.get(id);
       app.currentUser = selectedUser;
       var homePageView = new HomePageView({
         user: selectedUser,
-        tasks: app.gui.tasks
+        tasks: app.tasks
       })
       this.remove();
     },
     render: function() {
       console.log("render login view");
-      var users = this.collection.models;
+      var users = app.users.models;
       // var output = "<h1>Welcome!</h1><form><select id='usernames' placeholder='CHOOSE USER'><option></option>"
       var output = "<h1>Welcome!</h1><form><select id='usernames' placeholder='CHOOSE USER'>"
       users.forEach(function(user) {
@@ -277,12 +277,10 @@ var GUI = (function() { //IIFE for all Views
   });
 
   // generic ctor to represent interface:
-  function GUI(users, tasks, el) {
-    this.users = users; // a UsersCollection
-    this.tasks = tasks; // an IssuesCollection
-    var loginView = new LoginView({
-      collection: this.users
-    })
+  function GUI(el) {
+    // this.users = users; // a UsersCollection
+    // this.tasks = tasks; // an IssuesCollection
+    var loginView = new LoginView()
   }
 
   return GUI;

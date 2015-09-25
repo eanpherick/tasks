@@ -89,7 +89,8 @@ app.put('/tasks/:id', function(req, res) {
   var id = req.params.id;
   console.log("called PUT for id: " + id);
   console.log("passed in ", req.body);
-  tasks[id] = req.body.value;
+  tasks[id] = req.body;
+  showData();
   res.send({
     id: id
   });
@@ -101,7 +102,8 @@ app.post('/tasks', function(req, res) {
   console.log('Receiving a new task...');
   var newid = tasks.length;
   console.log('Assigning id of %s', newid);
-  tasks[newid] = req.body.value;
+  req.body.id = newid;
+  tasks[newid] = req.body;
   res.send({
     id: newid
   });

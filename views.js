@@ -24,7 +24,10 @@ var GUI = (function() { //IIFE for all Views
       } else if (assignee === app.currentUser.get("username") && status !== "completed") {
         this.$el.append($("<button class='quit'>").html("QUIT"));
         this.$el.append($("<button class='done'>").html("DONE"));
-      } // TODO: completed tasks should be marked completed in some way. or they should be removed or moved to a new TaskCollectionView for completed tasks
+      } else if (status === "completed") {
+        var date = new Date(this.model.get('completedOn'));
+        this.$el.append($("<p class='completed-date'>").html(date));
+      }
       this.$el.addClass("task-view");
     },
     updateTask: function(e) {
@@ -42,7 +45,7 @@ var GUI = (function() { //IIFE for all Views
       this.model.set({"assignee": "", "status": "unassigned"});
     },
     completeTask: function(e) {
-      this.model.set({"status": "completed"})
+      this.model.set({"status": "completed", "completedOn": new Date().getTime()});
       console.log("completeTask");
     },
     claimTask: function(e) {
@@ -78,6 +81,7 @@ var GUI = (function() { //IIFE for all Views
       console.log(newTitle)
       console.log(newDescription)
       this.model.set({
+        'createdOn': new Date().getTime(),
         'title': newTitle,
         'description': newDescription,
       })
@@ -125,6 +129,7 @@ var GUI = (function() { //IIFE for all Views
     },
     render: function() {
       this.filterCollection();
+      this.relevantTasks.reverse();
       // var title = this.kind === 'unassigned' ? "Unassigned Tasks" : app.currentUser.get("username") + "'s Tasks"
       var title = "Unassigned Tasks"
       if(this.kind === 'user'){
@@ -174,7 +179,7 @@ var GUI = (function() { //IIFE for all Views
       var completedTasks = new TaskCollectionView({
         collection: app.gui.tasks,
         kind: "completed"
-      }); 
+      });
       $taskViews.append(unassignedTasks.$el);
       $taskViews.append(userTasks.$el);
       $taskViews.append(completedTasks.$el);
@@ -226,7 +231,7 @@ var GUI = (function() { //IIFE for all Views
     },
     render: function() {
       var users = this.collection.models;
-      var output = "<h1>Welcome!</h1><form><select id='usernames'><option></option>"
+      var output = "<h1>Welcome!</h1><form><select id='usernames' placeholder='CHOOSE USER'><option></option>"
       users.forEach(function(user) {
         output += "<option value='" + user.cid + "'>" + user.get("username") + "</option>"
       })

@@ -12,6 +12,8 @@ var TaskModel = Backbone.Model.extend({
 		creator:'',
 		assignee:'',
 		status:'unassigned',
+    createdOn:new Date().getTime(),
+    completedOn:new Date().getTime(),
 	}
 	// Add methods if needed...
 })

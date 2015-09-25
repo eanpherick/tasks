@@ -86,11 +86,10 @@ app.get('/tasks/:id', function(req, res) {
 
 // update an existing task
 app.put('/tasks/:id', function(req, res) {
-  console.log("called PUT for id: " + id);
   var id = req.params.id;
-  console.log('Receiving text #%s...', id);
-  texts[id] = req.body.value;
-  showData();
+  console.log("called PUT for id: " + id);
+  console.log("passed in ", req.body);
+  tasks[id] = req.body.value;
   res.send({
     id: id
   });
@@ -98,11 +97,11 @@ app.put('/tasks/:id', function(req, res) {
 
 // create a new Task
 app.post('/tasks', function(req, res) {
-  console.log('Receiving new text...');
-  var newid = texts.length;
+  console.log("Called POST for ");
+  console.log('Receiving a new task...');
+  var newid = tasks.length;
   console.log('Assigning id of %s', newid);
-  texts[newid] = req.body.value;
-  showData();
+  tasks[newid] = req.body.value;
   res.send({
     id: newid
   });
@@ -110,14 +109,17 @@ app.post('/tasks', function(req, res) {
 
 // get all Tasks
 app.get('/tasks', function(req, res) {
-  showData();
+  // showData();
+  console.log('Get all of the tasks...');
   var tasksArray = tasks.map(function(e, i) {
     var newTask = {};
     for (var key in e) {
       newTask[key] = e[key];
     }
+    newTask.id = i;
     return newTask;
   });
+  console.log('sending ', tasksArray);
   res.send(tasksArray);
 });
 
@@ -128,10 +130,12 @@ app.get('/users', function(req, res) {
     for (var key in e) {
       newUser[key] = e[key];
     }
+    newUser.id = i;
     return newUser;
   });
+  console.log('sending ', usersArray);
   res.send(usersArray);
 });
 
 app.listen(3000);
-showData();
+// showData();

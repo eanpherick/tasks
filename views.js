@@ -19,6 +19,7 @@ var GUI = (function() { //IIFE for all Views
       this.$el.append($("<h2>").html(this.model.get('description')));
       this.$el.append($("<p class='creator'>").html("CREATED BY: " + this.model.get('creator')));
       this.$el.append($("<p class='assignee'>").html("ASSIGNED TO: " + assignee));
+      this.$el.append($("<p class='created'>").html("CREATED ON: " + this.model.get('createdOn')));
       if (status === "unassigned") {
         this.$el.append($("<button class='claim'>").html("CLAIM"));
       } else if (assignee === app.currentUser.get("username") && status !== "completed") {
@@ -39,20 +40,17 @@ var GUI = (function() { //IIFE for all Views
       "click button.claim": "claimTask"
     },
     quitTask: function(e) {
-      this.model.set({
-        "assignee": "",
-        "status": "unassigned"
-      });
+      this.model.set({"assignee": "", "status": "unassigned"});
+      this.model.save();
     },
     completeTask: function(e) {
       this.model.set({"status": "completed", "completedOn": new Date().getTime()});
-    },
+      this.model.save();
+      console.log("completeTask");
     },
     claimTask: function(e) {
-      this.model.set({
-        "assignee": app.currentUser.get("username"),
-        "status": "in progress"
-      });
+      this.model.set({"assignee": app.currentUser.get("username"), "status": "in progress"});
+      this.model.save();
     }
   });
 

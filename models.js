@@ -15,11 +15,15 @@ var TaskModel = Backbone.Model.extend({
 		creator:'',
 		assignee:'',
 		status:'unassigned',
-    createdOn:new Date().getTime(),
-    completedOn:new Date().getTime(),
+    createdOn:new Date(),
+    completedOn:new Date(),
 	},
   initialize: function(opts) {
     console.log("make a new TaskModel with:", opts);
+  },
+  setProps: function(obj) {
+    _.extend(this, obj); // use the values from obj
+    this.save();
   }
 	// Add methods if needed...
 })

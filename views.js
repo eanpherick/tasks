@@ -229,14 +229,7 @@ var GUI = (function() { //IIFE for all Views
       this.remove();
     },
     showNewTaskView: function(e) {
-      // TODO: this method will create a CreateTaskView, not immediately create a task
-      var newTask = new TaskModel({
-        creator: this.user.get('username')
-      });
-      var createTaskView = new CreateTaskView({
-        model: newTask,
-        homePage: this
-      });
+      var createTaskView = new CreateTaskView();
       createTaskView.render()
       $("#task-form").append(createTaskView.$el)
     }

@@ -86,6 +86,7 @@ app.get('/', function(req, res) {
 // get an existing task
 app.get('/tasks/:id', function(req, res) {
   var id = req.params.id;
+  console.log('GET task ' + id);
   res.send(tasks[id]);
 });
 
@@ -113,6 +114,10 @@ app.post('/tasks', function(req, res) {
     id: newid
   });
 });
+
+app.put('/tasks/:id', function(req, res) {
+  console.log('called PUT for ' + req.params.id);
+})
 
 // get all Tasks
 app.get('/tasks', function(req, res) {

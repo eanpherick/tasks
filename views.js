@@ -77,12 +77,13 @@ var GUI = (function() { //IIFE for all Views
       e.preventDefault();
       var newTitle = $(e.target).children("input[name='title']").val();
       var newDescription = $(e.target).children("input[name='description']").val();
-      this.model.set({
-        'createdOn': new Date().getTime(),
+      var obj = {
+        'createdOn': new Date(),
         'title': newTitle,
-        'description': newDescription
-      })
-      this.homePage.tasks.add(this.model)
+        'description': newDescription,
+        'creator': app.currentUser.get('username')
+      }
+      app.tasks.create(obj)
       this.remove();
     }
   });
@@ -189,7 +190,6 @@ var GUI = (function() { //IIFE for all Views
   // would also the name of the current user, a logout button, and a Create Task button
   var HomePageView = Backbone.View.extend({
     user: null,
-    tasks: null,
     initialize: function(opts) {
       _.extend(this, opts);
       this.render();
@@ -258,8 +258,7 @@ var GUI = (function() { //IIFE for all Views
       var selectedUser = app.users.get(id);
       app.currentUser = selectedUser;
       var homePageView = new HomePageView({
-        user: selectedUser,
-        tasks: app.tasks
+        user: selectedUser
       })
       this.remove();
     },

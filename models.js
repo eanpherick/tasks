@@ -1,7 +1,10 @@
 var UserModel = Backbone.Model.extend({
 	defaults: {
 		username:''
-	}
+	},
+  initialize: function(opts) {
+    console.log("make a new UserModel with:", opts);
+  }
 })
 
 // status options: 'unassigned', 'in progress', 'completed'
@@ -14,15 +17,26 @@ var TaskModel = Backbone.Model.extend({
 		status:'unassigned',
     createdOn:new Date().getTime(),
     completedOn:new Date().getTime(),
-	}
+	},
+  initialize: function(opts) {
+    console.log("make a new TaskModel with:", opts);
+  }
 	// Add methods if needed...
 })
 
 var UserCollection = Backbone.Collection.extend({
 	model:UserModel,
+  url : "/users",
+  initialize: function() {
+    this.fetch();
+  },
   activeUser:null
 })
 
 var TaskCollection = Backbone.Collection.extend({
-	model:TaskModel
+	model:TaskModel,
+  url : "/tasks",
+  initialize: function () {
+      this.fetch();
+  }
 })

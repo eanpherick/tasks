@@ -247,6 +247,7 @@ var GUI = (function() { //IIFE for all Views
   // a list of known users to choose from
   var LoginView = Backbone.View.extend({
     initialize: function() {
+      this.listenTo(this.collection, 'add', this.render);
       this.render();
       $("#app").append(this.$el);
     },
@@ -265,8 +266,10 @@ var GUI = (function() { //IIFE for all Views
       this.remove();
     },
     render: function() {
+      console.log("render login view");
       var users = this.collection.models;
-      var output = "<h1>Welcome!</h1><form><select id='usernames' placeholder='CHOOSE USER'><option></option>"
+      // var output = "<h1>Welcome!</h1><form><select id='usernames' placeholder='CHOOSE USER'><option></option>"
+      var output = "<h1>Welcome!</h1><form><select id='usernames' placeholder='CHOOSE USER'>"
       users.forEach(function(user) {
         output += "<option value='" + user.cid + "'>" + user.get("username") + "</option>"
       })

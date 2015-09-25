@@ -77,11 +77,8 @@ var GUI = (function() { //IIFE for all Views
     },
     submitForm: function(e) {
       e.preventDefault();
-      console.log(e);
       var newTitle = $(e.target).children("input[name='title']").val();
       var newDescription = $(e.target).children("input[name='description']").val();
-      console.log(newTitle)
-      console.log(newDescription)
       this.model.set({
         'createdOn': new Date().getTime(),
         'title': newTitle,
@@ -106,7 +103,6 @@ var GUI = (function() { //IIFE for all Views
       this.render();
     },
     addTask: function(e) {
-      console.log("addTask: " + e.title);
       this.filterCollection();
       this.makeTaskView(e);
     },
@@ -141,26 +137,12 @@ var GUI = (function() { //IIFE for all Views
         model: taskModel
       });
       this.taskViews.push(taskView);
-      console.log("just made a view for " + taskModel.get('title') + " and this.taskView is now: " + this.taskViews);
       this.$el.append(taskView.$el);
     },
     removeTaskView: function(taskModel) {
-      // console.log("CALLED REMOVE TASK VIEW() from " + this.kind);
-      // console.log("this.taskViews:");
-      // console.log(this.taskViews);
-      // if (this.relevantTasks.indexOf(taskModel) !== -1) return;
       if (this.hasTask(taskModel, this.relevantTasks)) return;
-
-      // for (var i = this.taskViews.length; --i >= 0;){
-      //   if (this.taskViews[i].model === taskModel) {
-      //     this.taskViews[i].remove();
-      //     this.taskViews.splice(i, 1);
-      //   }
-      // }
       this.taskViews.forEach(function(e, i, a) {
         if (e.model === taskModel) {
-          // console.log("REMOVE THE VIEW FOR THIS MODEL: ");
-          // console.log(e);
           e.remove();
           a.splice(i, 1);
         }
@@ -168,28 +150,13 @@ var GUI = (function() { //IIFE for all Views
     },
     // called on this.collection.change event
     updateTaskView: function(taskModel) {
-      console.log("About to updateTaskView of " + this.kind + " and its taskViews array is: ");
-      console.log(this.taskViews);
       var oldTasks = this.relevantTasks.slice();
       this.filterCollection();
-      /**
-       If the new model is already in relevantTasks AND in the new relevantTasks, then update the view.
-       Else, if the new model is in the NEW relevantTasks but not the old relevantTasks, add a new view for it.
-       Else, if the new model was in old relevantTasks but NOT in new relevantTasks , remove that view.
-       */
-      // if (oldTasks.indexOf(taskModel) > -1) {
       if (this.hasTask(taskModel, oldTasks)) {
-        // if (this.relevantTasks.indexOf(taskModel) === -1) {
         if (!this.hasTask(taskModel, this.relevantTasks)) {
-          console.log(" -- remove the view for: " + taskModel.get("title") + " in " + this.kind);
           this.removeTaskView(taskModel);
-        } else {
-          console.log(" || do nothing because " + taskModel.get('title') + " is already in " + this.kind);
         }
-      // } else if (this.relevantTasks.indexOf(taskModel) > -1) {
       } else if (this.hasTask(taskModel, this.relevantTasks)) {
-        // add a new view for the model
-        console.log(" ++ add a view for: " + taskModel.get("title") + " in " + this.kind);
         this.makeTaskView(taskModel);
       }
     },
@@ -214,7 +181,7 @@ var GUI = (function() { //IIFE for all Views
     // helper function to see if a given taskModel is contained in a given array
     hasTask: function(taskModel, array) {
       var result = _.find(array, function(model) {
-        return taskModel.get("title") === model.get("title");
+        return taskModel.cid === model.cid;
       });
       return result !== undefined;
     }

@@ -78,6 +78,11 @@ function showData() {
   console.log('Data store is now: ', tasks);
 }
 
+app.get('/', function(req, res) {
+  console.log("GET the current username");
+  res.send(currentUser);
+})
+
 // get an existing task
 app.get('/tasks/:id', function(req, res) {
   var id = req.params.id;

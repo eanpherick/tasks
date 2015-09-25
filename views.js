@@ -280,7 +280,18 @@ var GUI = (function() { //IIFE for all Views
   function GUI(el) {
     // this.users = users; // a UsersCollection
     // this.tasks = tasks; // an IssuesCollection
-    var loginView = new LoginView()
+    console.log("make a new GUI");
+    $.get("/", function(data) {
+      console.log("got data back...");
+      console.log(data);
+      app.currentUser = data;
+      if (app.currentUser) {
+        // show the main HomePage
+      } else {
+        // show the login page
+      }
+      var loginView = new LoginView(); // just show the LoginView since we aren't actually using the data from the server
+    });
   }
 
   return GUI;

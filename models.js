@@ -1,10 +1,10 @@
 var UserModel = Backbone.Model.extend({
 	defaults: {
 		username:''
-	},
-  initialize: function(opts) {
-    console.log("make a new UserModel with:", opts);
-  }
+	}
+  // initialize: function(opts) {
+  //   console.log("make a new UserModel with:", opts);
+  // }
 })
 
 // status options: 'unassigned', 'in progress', 'completed'
@@ -16,11 +16,9 @@ var TaskModel = Backbone.Model.extend({
 		assignee:'',
 		status:'unassigned',
     createdOn:new Date(),
-    completedOn:new Date(),
-	},
-  initialize: function(opts) {
-    console.log("make a new TaskModel with:", opts);
-  }
+    completedOn:new Date()
+	}
+  // initialize: function(opts) {} // not needed because extra props are defined in defaults
 })
 
 var UserCollection = Backbone.Collection.extend({
@@ -36,6 +34,6 @@ var TaskCollection = Backbone.Collection.extend({
 	model:TaskModel,
   url : "/tasks",
   initialize: function () {
-      this.fetch();
+      this.fetch(); // returns and array of object. each obj is passed to new TaskModel(obj)
   }
 })

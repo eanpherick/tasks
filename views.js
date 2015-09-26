@@ -63,7 +63,7 @@ var GUI = (function() { //IIFE for all Views
     },
     render: function() {
       var $form = $('<form id="form">');
-      $form.append($('<input type="text" name="title" placeholder="Enter Task Title">'));
+      $form.append($('<input type="text" name="title" placeholder="Enter Task Title" autofocus>'));
       $form.append($('<input type="type" name="description" placeholder="Enter Task Description">'));
       $form.append($('<input type="submit" name="submit" value="Submit">'));
       $form.append($('<button id="cancel">').html('Cancel'));

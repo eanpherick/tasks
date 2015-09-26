@@ -115,13 +115,12 @@ app.post('/tasks', function(req, res) {
   });
 });
 
-app.put('/tasks/:id', function(req, res) {
-  console.log('called PUT for ' + req.params.id);
-})
+// app.put('/tasks/:id', function(req, res) {
+//   console.log('called PUT for ' + req.params.id);
+// })
 
 // get all Tasks
 app.get('/tasks', function(req, res) {
-  // showData();
   console.log('Get all of the tasks...');
   var tasksArray = tasks.map(function(e, i) {
     var newTask = {};

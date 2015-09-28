@@ -51,6 +51,19 @@ app.put('/tasks/:id', function(req, res) {
     })
 });
 
+// delete an existing task
+app.delete('/tasks/:id', function(req, res) {
+  var id = req.params.id;
+  console.log("delete task: " + id);
+  db.remove('tasks', id)
+    .then(function (result) {
+      res.send({id: id});
+    })
+    .fail(function (err) {
+      console.log("failed to delete " + id);
+    })
+});
+
 // create a new Task
 app.post('/tasks', function(req, res) {
   console.log("Called POST for ");

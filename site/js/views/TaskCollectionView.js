@@ -7,7 +7,7 @@ app.TaskCollectionView = Backbone.View.extend({
     this.taskViews = [];
     this.listenTo(this.collection, 'add', this.addTask);
     this.listenTo(this.collection, 'change', this.updateTask);
-    // this.listenTo(this.collection, 'remove', this.removeTask); // we won't ever remove models. they will just be marked `complete` and archived
+    this.listenTo(this.collection, 'remove', this.updateTask);
     this.filterCollection();
     this.render();
   },

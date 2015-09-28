@@ -43,7 +43,8 @@ app.TaskView = Backbone.View.extend({
   events: {
     "click button.quit": "quitTask",
     "click button.done": "completeTask",
-    "click button.claim": "claimTask"
+    "click button.claim": "claimTask",
+    "click button.delete": "deleteTask"
   },
   quitTask: function(e) {
     this.model.set({"assignee": "", "status": "unassigned"});
@@ -56,5 +57,9 @@ app.TaskView = Backbone.View.extend({
   claimTask: function(e) {
     this.model.set({"assignee": app.currentUser.get("username"), "status": "in progress"});
     this.model.save();
-  }
+  },
+  deleteTask: function(e) {
+    // this.model.set({"assignee": app.currentUser.get("username"), "status": "in progress"});
+    this.model.destroy();
+  },
 });

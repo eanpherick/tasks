@@ -1,6 +1,6 @@
 var app = {};
 
-$(function() { //when DOM is ready...
+$(function() {
   app.currentUser = null;
   app.users = new UserCollection();
   app.tasks = new TaskCollection();

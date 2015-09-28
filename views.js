@@ -7,7 +7,7 @@ var GUI = (function() { //IIFE for all Views
   var TaskView = Backbone.View.extend({
     initialize: function(opts) {
       _.extend(this, opts);
-      this.listenTo(this.model, 'change', this.updateTask);
+      this.listenTo(this.model, 'change', this.updateView);
       this.render();
     },
     render: function() {
@@ -31,7 +31,7 @@ var GUI = (function() { //IIFE for all Views
       }
       this.$el.addClass("task-view");
     },
-    updateTask: function(e) {
+    updateView: function(e) {
       this.render();
     },
     events: {
@@ -46,7 +46,6 @@ var GUI = (function() { //IIFE for all Views
     completeTask: function(e) {
       this.model.set({"status": "completed", "completedOn": new Date().getTime()});
       this.model.save();
-      console.log("completeTask");
     },
     claimTask: function(e) {
       this.model.set({"assignee": app.currentUser.get("username"), "status": "in progress"});
@@ -54,47 +53,11 @@ var GUI = (function() { //IIFE for all Views
     }
   });
 
-  /**
-   You'll need a view with input fields for the user to fill in when creating a new task. It should probably have both a create and cancel button. The location and format of the view is up to you.
-   */
-  var CreateTaskView = Backbone.View.extend({
+  var TaskCollectionView = Backbone.View.extend({
     initialize: function(opts) {
       _.extend(this, opts);
-    },
-    render: function() {
-      var $form = $('<form id="form">');
-      $form.append($('<input type="text" name="title" placeholder="Enter Task Title" autofocus>'));
-      $form.append($('<input type="type" name="description" placeholder="Enter Task Description">'));
-      $form.append($('<input type="submit" name="submit" value="Submit">'));
-      $form.append($('<button id="cancel">').html('Cancel'));
-      this.$el.append($form)
-    },
-    events: {
-      "submit #form": "submitForm",
-      "click #cancel": function(e) {e.preventDefault(); this.remove()}
-    },
-    submitForm: function(e) {
-      e.preventDefault();
-      var newTitle = $(e.target).children("input[name='title']").val();
-      var newDescription = $(e.target).children("input[name='description']").val();
-      var obj = {
-        'createdOn': new Date(),
-        'title': newTitle,
-        'description': newDescription,
-        'creator': app.currentUser.get('username')
-      }
-      app.tasks.create(obj)
-      this.remove();
-    }
-  });
-
-  var TaskCollectionView = Backbone.View.extend({
-    // relevantTasks: [],
-    // taskViews: [], // this is shared among all TaskCollectionView instances?!?!
-    initialize: function(opts) {
       this.relevantTasks = [];
       this.taskViews = [];
-      _.extend(this, opts);
       this.listenTo(this.collection, 'add', this.addTask);
       this.listenTo(this.collection, 'change', this.updateTask);
       // this.listenTo(this.collection, 'remove', this.removeTask); // we won't ever remove models. they will just be marked `complete` and archived
@@ -106,9 +69,7 @@ var GUI = (function() { //IIFE for all Views
       this.makeTaskView(e);
     },
     updateTask: function(e) {
-      // this.filterCollection();
       this.updateTaskView(e);
-      // this.render();
     },
     filterCollection: function() {
       this.relevantTasks = [];
@@ -223,6 +184,7 @@ var GUI = (function() { //IIFE for all Views
       "click button#add-task": "showNewTaskView"
     },
     logout: function(e) {
+      $.post("/", {username: ""});
       var loginView = new LoginView({
         collection: app.gui.users
       })
@@ -230,8 +192,8 @@ var GUI = (function() { //IIFE for all Views
     },
     showNewTaskView: function(e) {
       var createTaskView = new CreateTaskView();
-      createTaskView.render()
-      $("#task-form").append(createTaskView.$el)
+      createTaskView.render();
+      $("#task-form").append(createTaskView.$el);
     }
   });
 
@@ -249,6 +211,7 @@ var GUI = (function() { //IIFE for all Views
       e.preventDefault();
       var id = $("select#usernames").val();
       var selectedUser = app.users.get(id);
+      $.post("/", {username: selectedUser.get("username")});
       app.currentUser = selectedUser;
       var homePageView = new HomePageView({
         user: selectedUser
@@ -256,7 +219,6 @@ var GUI = (function() { //IIFE for all Views
       this.remove();
     },
     render: function() {
-      console.log("render login view");
       var users = app.users.models;
       // var output = "<h1>Welcome!</h1><form><select id='usernames' placeholder='CHOOSE USER'><option></option>"
       var output = "<h1>Welcome!</h1><form><select id='usernames' placeholder='CHOOSE USER'>"
@@ -268,21 +230,46 @@ var GUI = (function() { //IIFE for all Views
     }
   });
 
+  var CreateTaskView = Backbone.View.extend({
+    initialize: function(opts) {
+      _.extend(this, opts);
+    },
+    render: function() {
+      var $form = $('<form id="form">');
+      $form.append($('<input type="text" name="title" placeholder="Enter Task Title" autofocus>'));
+      $form.append($('<input type="type" name="description" placeholder="Enter Task Description">'));
+      $form.append($('<input type="submit" name="submit" value="Submit">'));
+      $form.append($('<button id="cancel">').html('Cancel'));
+      this.$el.append($form)
+    },
+    events: {
+      "submit #form": "submitForm",
+      "click #cancel": function(e) {e.preventDefault(); this.remove()}
+    },
+    submitForm: function(e) {
+      e.preventDefault();
+      var newTitle = $(e.target).children("input[name='title']").val();
+      var newDescription = $(e.target).children("input[name='description']").val();
+      var obj = {
+        'createdOn': new Date(),
+        'title': newTitle,
+        'description': newDescription,
+        'creator': app.currentUser.get('username')
+      }
+      app.tasks.create(obj)
+      this.remove();
+    }
+  });
+
   // generic ctor to represent interface:
   function GUI(el) {
-    // this.users = users; // a UsersCollection
-    // this.tasks = tasks; // an IssuesCollection
-    console.log("make a new GUI");
     $.get("/", function(data) {
-      console.log("got data back...");
-      console.log(data);
-      app.currentUser = data;
-      if (app.currentUser) {
-        // show the main HomePage
+      app.currentUser = new UserModel(data);
+      if (app.currentUser.get("username") === "") {
+        new LoginView();
       } else {
-        // show the login page
+        new HomePageView({user: app.currentUser});
       }
-      var loginView = new LoginView(); // just show the LoginView since we aren't actually using the data from the server
     });
   }
 

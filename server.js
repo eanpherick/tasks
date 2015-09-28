@@ -28,49 +28,50 @@ var currentUser = null;
 
 // Allow optional test data...
 var testValues = [
-  {
-    title: 'Eat Lunch',
-    description: 'it will be good',
-    creator: 'Erik',
-    assignee: '',
-    status: 'unassigned'
-  },
-  {
-    title: 'Do Work',
-    description: 'it will be hard',
-    creator: 'Kathleen',
-    assignee: '',
-    status: 'unassigned'
-  },
-  {
-    title: 'sleep',
-    description: 'it will be relaxing',
-    creator: 'Pilar',
-    assignee: 'Pilar',
-    status: 'in progress'
-  },
-  {
-    title: 'wake up',
-    description: 'it will suck',
-    creator: 'RZA',
-    assignee: '',
-    status: 'unassigned'
-  },
-  {
-    title: 'take a bath',
-    description: 'it will be wet',
-    creator: 'Kathleen',
-    assignee: 'RZA',
-    status: 'in progress'
-  },
-  {
-    title: 'brush hair',
-    description: 'it will be pointless',
-    creator: 'Erik',
-    assignee: '',
-    status: 'unassigned'
-  }
+{
+  title: 'Eat Lunch',
+  description: 'it will be good',
+  creator: 'Erik',
+  assignee: '',
+  status: 'unassigned'
+},
+{
+  title: 'Do Work',
+  description: 'it will be hard',
+  creator: 'Kathleen',
+  assignee: '',
+  status: 'unassigned'
+},
+{
+  title: 'sleep',
+  description: 'it will be relaxing',
+  creator: 'Pilar',
+  assignee: 'Pilar',
+  status: 'in progress'
+},
+{
+  title: 'wake up',
+  description: 'it will suck',
+  creator: 'RZA',
+  assignee: '',
+  status: 'unassigned'
+},
+{
+  title: 'take a bath',
+  description: 'it will be wet',
+  creator: 'Kathleen',
+  assignee: 'RZA',
+  status: 'in progress'
+},
+{
+  title: 'brush hair',
+  description: 'it will be pointless',
+  creator: 'Erik',
+  assignee: '',
+  status: 'unassigned'
+}
 ]
+
 var useTestValues = process.argv[2]; // a number, optional extra argument when starting server
 if (useTestValues) tasks = testValues.slice(0, useTestValues);
 
@@ -79,8 +80,12 @@ function showData() {
 }
 
 app.get('/', function(req, res) {
-  console.log("GET the current username");
   res.send(currentUser);
+})
+
+app.post('/', function(req, res) {
+  currentUser = req.body;
+  res.end();
 })
 
 // get an existing task
@@ -96,7 +101,7 @@ app.put('/tasks/:id', function(req, res) {
   console.log("called PUT for id: " + id);
   console.log("passed in ", req.body);
   tasks[id] = req.body;
-  showData();
+  // showData();
   res.send({
     id: id
   });
@@ -115,11 +120,6 @@ app.post('/tasks', function(req, res) {
   });
 });
 
-// app.put('/tasks/:id', function(req, res) {
-//   console.log('called PUT for ' + req.params.id);
-// })
-
-// get all Tasks
 app.get('/tasks', function(req, res) {
   console.log('Get all of the tasks...');
   var tasksArray = tasks.map(function(e, i) {
@@ -130,7 +130,6 @@ app.get('/tasks', function(req, res) {
     newTask.id = i;
     return newTask;
   });
-  console.log('sending ', tasksArray);
   res.send(tasksArray);
 });
 

@@ -13,15 +13,15 @@ app.HomePageView = Backbone.View.extend({
     this.$el.append($("<button id='add-task'>").html("Add Task"));
     this.$el.append($("<div id='task-form'>"));
     var $taskViews = $("<div id='taskViews'>");
-    var unassignedTasks = new TaskCollectionView({
+    var unassignedTasks = new app.TaskCollectionView({
       collection: app.tasks,
       kind: "unassigned"
     });
-    var userTasks = new TaskCollectionView({
+    var userTasks = new app.TaskCollectionView({
       collection: app.tasks,
       kind: "user"
     });
-    var completedTasks = new TaskCollectionView({
+    var completedTasks = new app.TaskCollectionView({
       collection: app.tasks,
       kind: "completed"
     });
@@ -36,13 +36,13 @@ app.HomePageView = Backbone.View.extend({
   },
   logout: function(e) {
     $.post("/", {username: ""});
-    var loginView = new LoginView({
+    var loginView = new app.LoginView({
       collection: app.gui.users
     })
     this.remove();
   },
   showNewTaskView: function(e) {
-    var createTaskView = new CreateTaskView();
+    var createTaskView = new app.CreateTaskView();
     createTaskView.render();
     $("#task-form").append(createTaskView.$el);
   }

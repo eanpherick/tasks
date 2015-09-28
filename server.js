@@ -1,6 +1,7 @@
 var express = require('express');
 var bodyParser = require('body-parser');
 var config = require('./config');
+var path = require('path');
 var db = require('orchestrate')(config.orchestratekey);
 
 var app = express();
@@ -9,7 +10,8 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({
   extended: false
 }));
-app.use(express.static(__dirname));
+app.use(express.static(path.join(__dirname, 'site')));
+// app.use(express.static(__dirname));
 
 var tasks = [];
 var currentUser = null; // TODO: save the current user to a cookie so different browsers can have different users logged in.

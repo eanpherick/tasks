@@ -15,7 +15,7 @@ app.LoginView = Backbone.View.extend({
     var selectedUser = app.users.get(id);
     $.post("/", {username: selectedUser.get("username")});
     app.currentUser = selectedUser;
-    var homePageView = new HomePageView({
+    var homePageView = new app.HomePageView({
       user: selectedUser
     })
     this.remove();

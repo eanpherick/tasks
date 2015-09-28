@@ -40,7 +40,7 @@ app.TaskCollectionView = Backbone.View.extend({
   },
   makeTaskView: function(taskModel) {
     if (!this.hasTask(taskModel, this.relevantTasks)) return; // don't do anything if the taskModel isn't in `relevantTasks` array
-    var taskView = new TaskView({
+    var taskView = new app.TaskView({
       model: taskModel
     });
     this.taskViews.push(taskView);

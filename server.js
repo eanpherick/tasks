@@ -1,5 +1,7 @@
 var express = require('express');
 var bodyParser = require('body-parser');
+var config = require('./config');
+var db = require('orchestrate')(config.orchestratekey);
 
 var app = express();
 
@@ -23,8 +25,8 @@ var users = [
 {
   username: 'Pilar'
 }
-]
-var currentUser = null;
+] // TODO: create the list of users on startup, if there are none
+var currentUser = null; // TODO: save the current user to a cookie so different browsers can have different users logged in.
 
 // Allow optional test data...
 var testValues = [
@@ -98,39 +100,70 @@ app.get('/tasks/:id', function(req, res) {
 // update an existing task
 app.put('/tasks/:id', function(req, res) {
   var id = req.params.id;
-  console.log("called PUT for id: " + id);
-  console.log("passed in ", req.body);
-  tasks[id] = req.body;
+  console.log("update task with id: ", id);
+  console.log("passed in: ", req.body);
+  db.put('tasks', id, req.body)
+    .then(function(result) {
+      res.send({id: id});
+    })
+    .fail(function(err) {
+      console.log("PUT FAILED: ", err);
+      res.end()
+    })
+  // console.log("called PUT for id: " + id);
+  // console.log("passed in ", req.body);
+  // tasks[id] = req.body;
   // showData();
-  res.send({
-    id: id
-  });
 });
 
 // create a new Task
 app.post('/tasks', function(req, res) {
   console.log("Called POST for ");
   console.log('Receiving a new task...');
-  var newid = tasks.length;
-  console.log('Assigning id of %s', newid);
-  req.body.id = newid;
-  tasks[newid] = req.body;
-  res.send({
-    id: newid
-  });
+
+  db.post('tasks', req.body)
+  .then(function(result) {
+    console.log(">> put in a thing <<");
+    console.log(result.path.key);
+    console.log(">> --- <<");
+    console.log();
+    res.send({id: result.path.key}); // TODO: actually send back some info?
+  })
+  .fail(function(err) {
+    res.end(); // TODO: actually post some kind of error message
+  })
+  // tasks[newid] = req.body;
+  // res.send({
+  //   id: newid
+  // });
 });
 
 app.get('/tasks', function(req, res) {
-  console.log('Get all of the tasks...');
-  var tasksArray = tasks.map(function(e, i) {
-    var newTask = {};
-    for (var key in e) {
-      newTask[key] = e[key];
-    }
-    newTask.id = i;
-    return newTask;
-  });
-  res.send(tasksArray);
+  db.list('tasks')
+    .then(function(result) {
+      // console.log("got all tasks back");
+      // console.log(result.body.results);
+      tasksArray = result.body.results.map(function(e) {
+        var task = e.value;
+        task.id = e.path.key;
+        console.log("mapping", e);
+        return e.value;
+      })
+      // result.body.results is an array or objects with keys: path, value, reftime
+      res.send(tasksArray);
+    })
+    .fail(function(err) {
+      console.log(err);
+    });
+  // var tasksArray = tasks.map(function(e, i) {
+  //   var newTask = {};
+  //   for (var key in e) {
+  //     newTask[key] = e[key];
+  //   }
+  //   newTask.id = i;
+  //   return newTask;
+  // });
+  // res.send(tasksArray);
 });
 
 // get all Users

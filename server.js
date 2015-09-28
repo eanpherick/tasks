@@ -12,70 +12,7 @@ app.use(bodyParser.urlencoded({
 app.use(express.static(__dirname));
 
 var tasks = [];
-var users = [
-{
-  username: 'Kathleen'
-},
-{
-  username: 'Erik'
-},
-{
-  username: 'RZA'
-},
-{
-  username: 'Pilar'
-}
-] // TODO: create the list of users on startup, if there are none
 var currentUser = null; // TODO: save the current user to a cookie so different browsers can have different users logged in.
-
-// Allow optional test data...
-var testValues = [
-{
-  title: 'Eat Lunch',
-  description: 'it will be good',
-  creator: 'Erik',
-  assignee: '',
-  status: 'unassigned'
-},
-{
-  title: 'Do Work',
-  description: 'it will be hard',
-  creator: 'Kathleen',
-  assignee: '',
-  status: 'unassigned'
-},
-{
-  title: 'sleep',
-  description: 'it will be relaxing',
-  creator: 'Pilar',
-  assignee: 'Pilar',
-  status: 'in progress'
-},
-{
-  title: 'wake up',
-  description: 'it will suck',
-  creator: 'RZA',
-  assignee: '',
-  status: 'unassigned'
-},
-{
-  title: 'take a bath',
-  description: 'it will be wet',
-  creator: 'Kathleen',
-  assignee: 'RZA',
-  status: 'in progress'
-},
-{
-  title: 'brush hair',
-  description: 'it will be pointless',
-  creator: 'Erik',
-  assignee: '',
-  status: 'unassigned'
-}
-]
-
-var useTestValues = process.argv[2]; // a number, optional extra argument when starting server
-if (useTestValues) tasks = testValues.slice(0, useTestValues);
 
 function showData() {
   console.log('Data store is now: ', tasks);
@@ -110,10 +47,6 @@ app.put('/tasks/:id', function(req, res) {
       console.log("PUT FAILED: ", err);
       res.end()
     })
-  // console.log("called PUT for id: " + id);
-  // console.log("passed in ", req.body);
-  // tasks[id] = req.body;
-  // showData();
 });
 
 // create a new Task
@@ -127,58 +60,45 @@ app.post('/tasks', function(req, res) {
     console.log(result.path.key);
     console.log(">> --- <<");
     console.log();
-    res.send({id: result.path.key}); // TODO: actually send back some info?
+    res.send({id: result.path.key}); // TODO: actually send back more info?
   })
   .fail(function(err) {
     res.end(); // TODO: actually post some kind of error message
   })
-  // tasks[newid] = req.body;
-  // res.send({
-  //   id: newid
-  // });
 });
 
+// Get all the tasks
 app.get('/tasks', function(req, res) {
-  db.list('tasks')
+  db.list('tasks', {limit: 100})
     .then(function(result) {
-      // console.log("got all tasks back");
-      // console.log(result.body.results);
+      // `result.body.results` is an array of objects with keys: path, value, reftime
       tasksArray = result.body.results.map(function(e) {
         var task = e.value;
         task.id = e.path.key;
-        console.log("mapping", e);
-        return e.value;
+        return task;
       })
-      // result.body.results is an array or objects with keys: path, value, reftime
       res.send(tasksArray);
     })
     .fail(function(err) {
       console.log(err);
     });
-  // var tasksArray = tasks.map(function(e, i) {
-  //   var newTask = {};
-  //   for (var key in e) {
-  //     newTask[key] = e[key];
-  //   }
-  //   newTask.id = i;
-  //   return newTask;
-  // });
-  // res.send(tasksArray);
 });
 
 // get all Users
 app.get('/users', function(req, res) {
-  var usersArray = users.map(function(e, i) {
-    var newUser = {};
-    for (var key in e) {
-      newUser[key] = e[key];
-    }
-    newUser.id = i;
-    return newUser;
-  });
-  console.log('sending ', usersArray);
-  res.send(usersArray);
+  // get the users from the database
+  db.list('users')
+    .then(function(result) {
+      var usersArray = result.body.results.map(function(e) {
+        var user = e.value;
+        user.id = e.path.key;
+        return user;
+      })
+      res.send(usersArray);
+    })
+    .fail(function(err) {
+      console.log(err);
+    })
 });
 
 app.listen(3000);
-// showData();

@@ -5,6 +5,5 @@ app.UserCollection = Backbone.Collection.extend({
   url: "/users",
   initialize: function() {
     this.fetch();
-  },
-  activeUser: null
+  }
 })

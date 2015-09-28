@@ -26,10 +26,10 @@ app.TaskCollectionView = Backbone.View.extend({
       })
     } else if (this.kind === "user"){
       var assigned = this.collection.filter(function(task){
-        return (task.get('status') === "in progress") && (task.get('assignee') === app.currentUser.get("username"));
+        return (task.get('status') === "in progress") && (task.get('assignee').toLowerCase() === app.currentUser.get("username").toLowerCase());
       })
       var created = this.collection.filter(function(task){
-        return (task.get('creator') === app.currentUser.get("username")) && (task.get('status') !== "completed");
+        return (task.get('creator').toLowerCase() === app.currentUser.get("username").toLowerCase()) && (task.get('status') !== "completed");
       })
       this.relevantTasks = _.union(assigned, created);
     } else {

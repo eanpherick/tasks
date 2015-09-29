@@ -99,6 +99,36 @@ app.get('/tasks', function(req, res) {
     });
 });
 
+app.get('/tasks-unassigned', function(req, res) {
+  console.log("get unassigned tasks");
+  res.end();
+  // db.list('tasks', {limit: 100})
+  //   .then(function(result) {
+  //     // `result.body.results` is an array of objects with keys: path, value, reftime
+  //     tasksArray = result.body.results.map(function(e) {
+  //       var task = e.value;
+  //       task.id = e.path.key;
+  //       return task;
+  //     })
+  //     res.send(tasksArray);
+  //   })
+  //   .fail(function(err) {
+  //     console.log(err);
+  //   });
+});
+
+app.get('/tasks-completed', function(req, res) {
+  console.log("get completed tasks");
+  res.end();
+});
+
+app.get('/tasks-user/:username', function(req, res) {
+  console.log("get tasks for " + req.params.username);
+  res.end();
+});
+
+
+
 // get all Users
 app.get('/users', function(req, res) {
   // get the users from the database

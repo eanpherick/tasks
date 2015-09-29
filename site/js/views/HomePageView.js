@@ -4,6 +4,7 @@ app.HomePageView = Backbone.View.extend({
   user: null,
   initialize: function(opts) {
     _.extend(this, opts);
+    app.tasksUser = new app.TaskCollection("user");
     this.render();
     $("#app").html(this.$el);
   },

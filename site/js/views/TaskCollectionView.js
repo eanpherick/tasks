@@ -2,45 +2,22 @@ var app = app || {};
 
 app.TaskCollectionView = Backbone.View.extend({
   initialize: function(opts) {
-    _.extend(this, opts);
-    this.relevantTasks = [];
+    _.extend(this, opts)
     this.taskViews = [];
     this.listenTo(this.collection, 'add', this.addTask);
     this.listenTo(this.collection, 'change', this.updateTask);
     this.listenTo(this.collection, 'remove', this.updateTask);
-    this.filterCollection();
     this.render();
   },
   addTask: function(e) {
     console.log("Added new task: ", e);
-    this.filterCollection();
     this.makeTaskView(e);
   },
   updateTask: function(e) {
     this.updateTaskView(e);
   },
-  filterCollection: function() {
-    this.relevantTasks = [];
-    if (this.kind === "unassigned") {
-      this.relevantTasks = this.collection.filter(function(task){
-        return task.get('status') === "unassigned"
-      })
-    } else if (this.kind === "user"){
-      var assigned = this.collection.filter(function(task){
-        return (task.get('status') === "in progress") && (task.get('assignee').toLowerCase() === app.currentUser.get("username").toLowerCase());
-      })
-      var created = this.collection.filter(function(task){
-        return (task.get('creator').toLowerCase() === app.currentUser.get("username").toLowerCase()) && (task.get('status') !== "completed");
-      })
-      this.relevantTasks = _.union(assigned, created);
-    } else {
-      this.relevantTasks = this.collection.where({
-        status: "completed"
-      });
-    }
-  },
   makeTaskView: function(taskModel) {
-    if (!this.hasTask(taskModel, this.relevantTasks)) return; // don't do anything if the taskModel isn't in `relevantTasks` array
+    if (!this.hasTask(taskModel, this.collection)) return; // don't do anything if the taskModel isn't in `relevantTasks` array
     var taskView = new app.TaskView({
       model: taskModel
     });
@@ -48,7 +25,7 @@ app.TaskCollectionView = Backbone.View.extend({
     this.$el.append(taskView.$el);
   },
   removeTaskView: function(taskModel) {
-    if (this.hasTask(taskModel, this.relevantTasks)) return;
+    if (this.hasTask(taskModel, this.collection)) return;
     this.taskViews.forEach(function(e, i, a) {
       if (e.model === taskModel) {
         e.remove();
@@ -58,18 +35,16 @@ app.TaskCollectionView = Backbone.View.extend({
   },
   // called on this.collection.change event
   updateTaskView: function(taskModel) {
-    var oldTasks = this.relevantTasks.slice();
-    this.filterCollection();
+    var oldTasks = this.collection.models.slice();
     if (this.hasTask(taskModel, oldTasks)) {
-      if (!this.hasTask(taskModel, this.relevantTasks)) {
+      if (!this.hasTask(taskModel, this.collection)) {
         this.removeTaskView(taskModel);
       }
-    } else if (this.hasTask(taskModel, this.relevantTasks)) {
+    } else if (this.hasTask(taskModel, this.collection)) {
       this.makeTaskView(taskModel);
     }
   },
   render: function() {
-    this.relevantTasks.reverse();
     var title = "Unassigned Tasks"
     if(this.kind === 'user'){
       title = app.currentUser.get("username") + "'s Tasks"
@@ -80,7 +55,9 @@ app.TaskCollectionView = Backbone.View.extend({
     this.$el.append($("<h1>").html(title));
     // make a new TaskView for each this.relevantTasks
     var self = this;
-    this.relevantTasks.forEach(function(task) {
+    console.log("Render: ", this.collection);
+    this.collection.each(function(task) {
+      console.log("make a task view for : ", task);
       self.makeTaskView(task);
     })
     this.$el.addClass('task-collection');
@@ -88,9 +65,9 @@ app.TaskCollectionView = Backbone.View.extend({
   },
   // helper function to see if a given taskModel is contained in a given array
   hasTask: function(taskModel, array) {
-    var result = _.find(array, function(model) {
+    var result = this.collection.find(function(model) {
       return taskModel.cid === model.cid;
-    });
+    })
     return result !== undefined;
   }
 });

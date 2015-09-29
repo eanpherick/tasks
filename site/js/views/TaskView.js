@@ -55,11 +55,11 @@ app.TaskView = Backbone.View.extend({
     this.model.save();
   },
   claimTask: function(e) {
+    console.log("claim ", this.model);
     this.model.set({"assignee": app.currentUser.get("username"), "status": "in progress"});
     this.model.save();
   },
   deleteTask: function(e) {
-    // this.model.set({"assignee": app.currentUser.get("username"), "status": "in progress"});
     this.model.destroy();
   },
 });

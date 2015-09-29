@@ -137,6 +137,7 @@ app.get('/tasks-completed', function(req, res) {
 
 app.get('/tasks-user/:username', function(req, res) {
   console.log("get tasks for " + req.params.username);
+  var query = "(status:'completed' AND assignee:) OR (AND)"
 /**
       status:"in progress" && assignee:app.currentUser.get("username");
       creator:app.currentUser.get("username") && status:!"completed"

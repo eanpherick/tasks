@@ -75,7 +75,7 @@ app.post('/tasks', function(req, res) {
     console.log(result.path.key);
     console.log(">> --- <<");
     console.log();
-    res.send({id: result.path.key}); // TODO: actually send back more info?
+    res.send({id: result.path.key}); // TODO: actually send back more info? <-- Actually assigns the ID to the backbone model
   })
   .fail(function(err) {
     res.end(); // TODO: actually post some kind of error message

@@ -12,6 +12,7 @@ app.TaskCollectionView = Backbone.View.extend({
     this.render();
   },
   addTask: function(e) {
+    console.log("Added new task: ", e);
     this.filterCollection();
     this.makeTaskView(e);
   },

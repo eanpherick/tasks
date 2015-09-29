@@ -87,7 +87,7 @@ app.get('/tasks', function(req, res) {
   db.list('tasks', {limit: 100})
     .then(function(result) {
       // `result.body.results` is an array of objects with keys: path, value, reftime
-      tasksArray = result.body.results.map(function(e) {
+      var tasksArray = result.body.results.map(function(e) {
         var task = e.value;
         task.id = e.path.key;
         return task;
@@ -101,30 +101,60 @@ app.get('/tasks', function(req, res) {
 
 app.get('/tasks-unassigned', function(req, res) {
   console.log("get unassigned tasks");
-  res.end();
-  // db.list('tasks', {limit: 100})
-  //   .then(function(result) {
-  //     // `result.body.results` is an array of objects with keys: path, value, reftime
-  //     tasksArray = result.body.results.map(function(e) {
-  //       var task = e.value;
-  //       task.id = e.path.key;
-  //       return task;
-  //     })
-  //     res.send(tasksArray);
-  //   })
-  //   .fail(function(err) {
-  //     console.log(err);
-  //   });
+  db.search('tasks', 'status:"unassigned"') // if `status === "unassigned"`
+  .then(function(result) {
+    console.log("GOT TASKS THAT ARE UNASSIGNED");
+    var tasksArray = result.body.results.map(function(e) {
+      var task = e.value;
+      task.id = e.path.key;
+      return task;
+    })
+    res.send(tasksArray);
+  })
+  .fail(function(err) {
+    console.log("ERROR");
+    res.end();
+  })
 });
 
 app.get('/tasks-completed', function(req, res) {
   console.log("get completed tasks");
-  res.end();
+  db.search('tasks', 'status:"completed"') // if `status === "unassigned"`
+  .then(function(result) {
+    console.log("GOT TASKS THAT ARE COMPLETED");
+    var tasksArray = result.body.results.map(function(e) {
+      var task = e.value;
+      task.id = e.path.key;
+      return task;
+    })
+    res.send(tasksArray);
+  })
+  .fail(function(err) {
+    console.log("ERROR");
+    res.end();
+  })
 });
 
 app.get('/tasks-user/:username', function(req, res) {
   console.log("get tasks for " + req.params.username);
-  res.end();
+/**
+      status:"in progress" && assignee:app.currentUser.get("username");
+      creator:app.currentUser.get("username") && status:!"completed"
+*/
+  db.search('tasks', 'status:"completed"') // if `status === "unassigned"`
+  .then(function(result) {
+    console.log("GOT TASKS THAT ARE COMPLETED");
+    var tasksArray = result.body.results.map(function(e) {
+      var task = e.value;
+      task.id = e.path.key;
+      return task;
+    })
+    res.send(tasksArray);
+  })
+  .fail(function(err) {
+    console.log("ERROR");
+    res.end();
+  })
 });
 
 

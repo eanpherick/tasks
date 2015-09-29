@@ -26,7 +26,7 @@ app.CreateTaskView = Backbone.View.extend({
       'description': newDescription,
       'creator': app.currentUser.get('username')
     }
-    app.tasks.create(obj)
+    app.tasksUnassigned.create(obj)
     this.remove();
   }
 });

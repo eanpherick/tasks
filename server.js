@@ -32,15 +32,14 @@ app.post('/', function(req, res) {
 // get an existing task
 app.get('/tasks/:id', function(req, res) {
   var id = req.params.id;
-  console.log('GET task ' + id);
+  console.log("GET /tasks/" + id);
   res.send(tasks[id]);
 });
 
 // update an existing task
 app.put('/tasks/:id', function(req, res) {
   var id = req.params.id;
-  console.log("update task with id: ", id);
-  console.log("passed in: ", req.body);
+  console.log("PUT /tasks/" + id);
   db.put('tasks', id, req.body)
     .then(function(result) {
       res.send({id: id});
@@ -54,7 +53,7 @@ app.put('/tasks/:id', function(req, res) {
 // delete an existing task
 app.delete('/tasks/:id', function(req, res) {
   var id = req.params.id;
-  console.log("delete task: " + id);
+  console.log("DELETE /tasks/" + id);
   db.remove('tasks', id)
     .then(function (result) {
       res.send({id: id});
@@ -66,7 +65,7 @@ app.delete('/tasks/:id', function(req, res) {
 
 // create a new Task
 app.post('/tasks', function(req, res) {
-  console.log("Called POST for ");
+  console.log("POST /tasks - ", req.body);
   console.log('Receiving a new task...');
 
   db.post('tasks', req.body)
@@ -99,11 +98,10 @@ app.get('/tasks', function(req, res) {
     });
 });
 
+// Get all the Unassigned Tasks
 app.get('/tasks-unassigned', function(req, res) {
-  console.log("get unassigned tasks");
   db.search('tasks', 'status:"unassigned"') // if `status === "unassigned"`
   .then(function(result) {
-    console.log("GOT TASKS THAT ARE UNASSIGNED");
     var tasksArray = result.body.results.map(function(e) {
       var task = e.value;
       task.id = e.path.key;
@@ -117,11 +115,54 @@ app.get('/tasks-unassigned', function(req, res) {
   })
 });
 
+// Get a single Unassigned Task
+app.get('/tasks-unassigned/:id', function(req, res) {
+  db.search('tasks', 'status:"unassigned" AND id:"' + req.params.id + '"')
+  .then(function(result) {
+    var tasksArray = result.body.results.map(function(e) {
+      return e.value;
+      // var task = e.value;
+      // task.id = e.path.key;
+      // return task;
+    })
+    res.send(tasksArray);
+  })
+  .fail(function(err) {
+    console.log("ERROR");
+    res.end();
+  })
+});
+
+
+app.post('/tasks-unassigned', function(req, res) {
+  console.log("POST in unassigned: ", e.req.body);
+  res.end();
+})
+
+// set a single task model
+app.put('/tasks-unassigned/:id', function(req, res) {
+  console.log("PUT in unassigned: ", e.req.body);
+  // return the task if it should be added, else res.end();
+
+  // db.search('tasks', 'status:"unassigned"') // if `status === "unassigned"`
+  // .then(function(result) {
+  //   var tasksArray = result.body.results.map(function(e) {
+  //     var task = e.value;
+  //     task.id = e.path.key;
+  //     return task;
+  //   })
+  //   res.send(tasksArray);
+  // })
+  // .fail(function(err) {
+  //   console.log("ERROR");
+  //   res.end();
+  // })
+  res.end();
+});
+
 app.get('/tasks-completed', function(req, res) {
-  console.log("get completed tasks");
   db.search('tasks', 'status:"completed"') // if `status === "unassigned"`
   .then(function(result) {
-    console.log("GOT TASKS THAT ARE COMPLETED");
     var tasksArray = result.body.results.map(function(e) {
       var task = e.value;
       task.id = e.path.key;
@@ -136,8 +177,10 @@ app.get('/tasks-completed', function(req, res) {
 });
 
 app.get('/tasks-user/:username', function(req, res) {
-  var username = currentUser.username;
-  var query = "(status:'completed' AND assignee:" + username + ") OR (creator:" + username + " AND NOT status:'completed')";
+  // var username = currentUser.username;
+  var username = req.params.username;
+  // var query = '(status:"in progress" AND assignee:"joe") OR (creator:"joe" AND NOT status:"completed")'
+var query = '(status:"in progress" AND assignee:"' + username + '") OR (creator:"' + username + '" AND NOT status:"completed")';
   db.search('tasks', query)
   .then(function(result) {
     var tasksArray = result.body.results.map(function(e) {

@@ -136,15 +136,10 @@ app.get('/tasks-completed', function(req, res) {
 });
 
 app.get('/tasks-user/:username', function(req, res) {
-  console.log("get tasks for " + req.params.username);
-  var query = "(status:'completed' AND assignee:) OR (AND)"
-/**
-      status:"in progress" && assignee:app.currentUser.get("username");
-      creator:app.currentUser.get("username") && status:!"completed"
-*/
-  db.search('tasks', 'status:"completed"') // if `status === "unassigned"`
+  var username = currentUser.username;
+  var query = "(status:'completed' AND assignee:" + username + ") OR (creator:" + username + " AND NOT status:'completed')";
+  db.search('tasks', query)
   .then(function(result) {
-    console.log("GOT TASKS THAT ARE COMPLETED");
     var tasksArray = result.body.results.map(function(e) {
       var task = e.value;
       task.id = e.path.key;
@@ -157,8 +152,6 @@ app.get('/tasks-user/:username', function(req, res) {
     res.end();
   })
 });
-
-
 
 // get all Users
 app.get('/users', function(req, res) {

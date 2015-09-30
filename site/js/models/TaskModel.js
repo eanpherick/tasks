@@ -27,7 +27,7 @@ app.SharedTaskModel = function(attrs) {
   } else {
     var task = new app.TaskModel(attrs)
     if ('id' in attrs) {
-      app.allTasks.add(task);
+      app.allTasks.add(task, {silent: true});
     }
     return task;
   }

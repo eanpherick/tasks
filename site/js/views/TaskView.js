@@ -25,10 +25,12 @@ app.TaskView = Backbone.View.extend({
       if (creator === app.currentUser.get("username")) {
         this.$el.append($("<button class='delete'>").html("DELETE"));
       }
-    } else if (assignee === app.currentUser.get("username") && status !== "completed") {
+    } else if (status !== "completed") {
       this.$el.append($("<p class='assignee'>").html("ASSIGNED TO: " + assignee));
-      this.$el.append($("<button class='quit'>").html("QUIT"));
-      this.$el.append($("<button class='done'>").html("DONE"));
+      if (assignee === app.currentUser.get("username")) {
+        this.$el.append($("<button class='quit'>").html("QUIT"));
+        this.$el.append($("<button class='done'>").html("DONE"));
+      }
     } else if (status === "completed") {
       this.$el.append($("<p class='assignee'>").html("COMPLETED BY: " + assignee));
       var date = new Date(this.model.get('completedOn'));

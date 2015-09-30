@@ -4,16 +4,13 @@ app.TaskCollectionView = Backbone.View.extend({
   initialize: function(opts) {
     _.extend(this, opts)
     this.taskViews = [];
-    this.listenTo(this.collection, 'add', this.addTask);
-    this.listenTo(this.collection, 'change', this.updateTask);
-    this.listenTo(this.collection, 'remove', this.updateTask);
+    this.listenTo(this.collection, 'add', this.makeTaskView);
+    // this.listenTo(this.collection, 'change', this.updateTask);
+    this.listenTo(this.collection, 'remove', this.removeTaskView);
     this.render();
   },
-  addTask: function(e) {
-    console.log("Added new task: ", e);
-    this.makeTaskView(e);
-  },
   updateTask: function(e) {
+    console.log("Updated task: ", this.collection.url, e);
     this.updateTaskView(e);
   },
   makeTaskView: function(taskModel) {
@@ -55,9 +52,8 @@ app.TaskCollectionView = Backbone.View.extend({
     this.$el.append($("<h1>").html(title));
     // make a new TaskView for each this.relevantTasks
     var self = this;
-    console.log("Render: ", this.collection);
+    // console.log("Render: " ,this.kind , this.collection);
     this.collection.each(function(task) {
-      console.log("make a task view for : ", task);
       self.makeTaskView(task);
     })
     this.$el.addClass('task-collection');

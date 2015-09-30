@@ -5,8 +5,6 @@ app.TaskCollection = Backbone.Collection.extend({
   url: "/tasks",
   initialize: function(models, options) {
     this.url = options.url;
-    console.log("new TaskCollection: ", options);
-    console.log("url is now: ", this.url);
-    this.fetch(); // returns and array of object. each obj is passed to new TaskModel(obj)
+    this.fetch(); // returns and array of object. each obj is passed to new SharedTaskModel(obj)
   }
 })

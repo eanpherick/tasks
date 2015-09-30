@@ -4,7 +4,11 @@ app.HomePageView = Backbone.View.extend({
   user: null,
   initialize: function(opts) {
     _.extend(this, opts);
-    app.tasksUser = new app.TaskCollection([], {url: "/tasks-user/" + this.user.get("username")});
+    app.tasksUnassigned = new app.TaskCollection([], {url: "/tasks-unassigned"});
+    app.tasksCompleted = new app.TaskCollection([], {url: "/tasks-completed"});
+    app.tasksUser = new app.TaskCollection([], {url: "/tasks-user/" + app.currentUser});
+    // TODO: make a new TaskCollection that is a constantly updated union of these three TaskCollections.
+
     this.render();
     $("#app").html(this.$el);
   },

@@ -177,10 +177,8 @@ app.get('/tasks-completed', function(req, res) {
 });
 
 app.get('/tasks-user/:username', function(req, res) {
-  // var username = currentUser.username;
   var username = req.params.username;
-  // var query = '(status:"in progress" AND assignee:"joe") OR (creator:"joe" AND NOT status:"completed")'
-var query = '(status:"in progress" AND assignee:"' + username + '") OR (creator:"' + username + '" AND NOT status:"completed")';
+  var query = '(status:"in progress" AND assignee:"' + username + '") OR (creator:"' + username + '" AND NOT status:"completed")';
   db.search('tasks', query)
   .then(function(result) {
     var tasksArray = result.body.results.map(function(e) {

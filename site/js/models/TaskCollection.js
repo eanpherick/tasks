@@ -14,7 +14,6 @@ app.TaskCollection = Backbone.Collection.extend({
     this.fetch(); // returns and array of object. each obj is passed to new SharedTaskModel(obj)
   },
   taskAdded: function(e) {
-    console.log("added ", e, " to TaskCollection of type: ", this.collectionKind);
     var status = e.get("status");
     var creator = e.get("creator");
     var assignee = e.get("assignee");
@@ -36,21 +35,35 @@ app.TaskCollection = Backbone.Collection.extend({
       }
       break;
     }
-    // TODO: only call this.add(e) if the new task should really be added
-    // this.add(e);
   },
   taskChanged: function(e) {
-    console.log("TaskCollection > change task: ", e);
-    // either remove e from this or add it
+    var status = e.get("status");
+    var creator = e.get("creator");
+    var assignee = e.get("assignee");
+    var currentUser = app.currentUser.get("username");
+    switch (this.collectionKind) {
+    case "unassigned":
+      if (status !== "unassigned") {
+        this.remove(e);
+      } else if (status === "unassigned") {
+        this.add(e);
+      }
+      break;
+    case "user":
+      if ((creator === currentUser || assignee === currentUser) && status !== "completed") {
+        this.add(e);
+      } else {
+        this.remove(e);
+      }
+      break;
+    case "completed":
+      if (status === "completed") {
+        this.add(e);
+      }
+      break;
+    }
   },
   taskRemoved: function(e) {
-    console.log("TaskCollection > remove task: ", e);
     this.remove(e);
-  },
-  hasTask: function(taskModel, array) {
-    var result = this.find(function(model) {
-      return taskModel.cid === model.cid;
-    })
-    return result !== undefined;
   }
 })

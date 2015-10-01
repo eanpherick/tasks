@@ -11,7 +11,6 @@ app.use(bodyParser.urlencoded({
   extended: false
 }));
 app.use(express.static(path.join(__dirname, 'site')));
-// app.use(express.static(__dirname));
 
 var tasks = [];
 var currentUser = null; // TODO: save the current user to a cookie so different browsers can have different users logged in.
@@ -32,15 +31,14 @@ app.post('/', function(req, res) {
 // get an existing task
 app.get('/tasks/:id', function(req, res) {
   var id = req.params.id;
-  console.log('GET task ' + id);
+  console.log("GET /tasks/" + id);
   res.send(tasks[id]);
 });
 
 // update an existing task
 app.put('/tasks/:id', function(req, res) {
   var id = req.params.id;
-  console.log("update task with id: ", id);
-  console.log("passed in: ", req.body);
+  console.log("PUT /tasks/" + id);
   db.put('tasks', id, req.body)
     .then(function(result) {
       res.send({id: id});
@@ -54,7 +52,7 @@ app.put('/tasks/:id', function(req, res) {
 // delete an existing task
 app.delete('/tasks/:id', function(req, res) {
   var id = req.params.id;
-  console.log("delete task: " + id);
+  console.log("DELETE /tasks/" + id);
   db.remove('tasks', id)
     .then(function (result) {
       res.send({id: id});
@@ -66,16 +64,10 @@ app.delete('/tasks/:id', function(req, res) {
 
 // create a new Task
 app.post('/tasks', function(req, res) {
-  console.log("Called POST for ");
-  console.log('Receiving a new task...');
-
+  console.log("POST /tasks");
   db.post('tasks', req.body)
   .then(function(result) {
-    console.log(">> put in a thing <<");
-    console.log(result.path.key);
-    console.log(">> --- <<");
-    console.log();
-    res.send({id: result.path.key}); // TODO: actually send back more info? <-- Actually assigns the ID to the backbone model
+    res.send({id: result.path.key});
   })
   .fail(function(err) {
     res.end(); // TODO: actually post some kind of error message
@@ -87,7 +79,7 @@ app.get('/tasks', function(req, res) {
   db.list('tasks', {limit: 100})
     .then(function(result) {
       // `result.body.results` is an array of objects with keys: path, value, reftime
-      tasksArray = result.body.results.map(function(e) {
+      var tasksArray = result.body.results.map(function(e) {
         var task = e.value;
         task.id = e.path.key;
         return task;
@@ -97,6 +89,72 @@ app.get('/tasks', function(req, res) {
     .fail(function(err) {
       console.log(err);
     });
+});
+
+// Get all the Unassigned Tasks
+app.get('/tasks-unassigned', function(req, res) {
+  db.search('tasks', 'status:"unassigned"') // if `status === "unassigned"`
+  .then(function(result) {
+    var tasksArray = result.body.results.map(function(e) {
+      var task = e.value;
+      task.id = e.path.key;
+      return task;
+    })
+    res.send(tasksArray);
+  })
+  .fail(function(err) {
+    console.log("ERROR");
+    res.end();
+  })
+});
+
+// Get a single Unassigned Task
+app.get('/tasks-unassigned/:id', function(req, res) {
+  db.search('tasks', 'status:"unassigned" AND id:"' + req.params.id + '"')
+  .then(function(result) {
+    var tasksArray = result.body.results.map(function(e) {
+      return e.value;
+    })
+    res.send(tasksArray);
+  })
+  .fail(function(err) {
+    console.log("ERROR");
+    res.end();
+  })
+});
+
+app.get('/tasks-completed', function(req, res) {
+  db.search('tasks', 'status:"completed"') // if `status === "unassigned"`
+  .then(function(result) {
+    var tasksArray = result.body.results.map(function(e) {
+      var task = e.value;
+      task.id = e.path.key;
+      return task;
+    })
+    res.send(tasksArray);
+  })
+  .fail(function(err) {
+    console.log("ERROR");
+    res.end();
+  })
+});
+
+app.get('/tasks-user/:username', function(req, res) {
+  var username = req.params.username;
+  var query = '(status:"in progress" AND assignee:"' + username + '") OR (creator:"' + username + '" AND NOT status:"completed")';
+  db.search('tasks', query)
+  .then(function(result) {
+    var tasksArray = result.body.results.map(function(e) {
+      var task = e.value;
+      task.id = e.path.key;
+      return task;
+    })
+    res.send(tasksArray);
+  })
+  .fail(function(err) {
+    console.log("ERROR");
+    res.end();
+  })
 });
 
 // get all Users

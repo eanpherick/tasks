@@ -1,0 +1,3 @@
+- get the USER search query working properly @done
+- make a 'union' collection that all other collections listen to and update based on
+- 

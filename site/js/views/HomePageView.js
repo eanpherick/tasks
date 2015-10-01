@@ -4,6 +4,18 @@ app.HomePageView = Backbone.View.extend({
   user: null,
   initialize: function(opts) {
     _.extend(this, opts);
+    app.tasksUnassigned = new app.TaskCollection([], {
+      url: "/tasks-unassigned",
+      collectionKind: "unassigned"
+    });
+    app.tasksCompleted = new app.TaskCollection([], {
+      url: "/tasks-completed",
+      collectionKind: "completed"
+    });
+    app.tasksUser = new app.TaskCollection([], {
+      url: "/tasks-user/" + app.currentUser.get("username"),
+      collectionKind: "user"
+    });
     this.render();
     $("#app").html(this.$el);
   },
@@ -14,15 +26,15 @@ app.HomePageView = Backbone.View.extend({
     this.$el.append($("<div id='task-form'>"));
     var $taskViews = $("<div id='taskViews'>");
     var unassignedTasks = new app.TaskCollectionView({
-      collection: app.tasks,
+      collection: app.tasksUnassigned,
       kind: "unassigned"
     });
     var userTasks = new app.TaskCollectionView({
-      collection: app.tasks,
+      collection: app.tasksUser,
       kind: "user"
     });
     var completedTasks = new app.TaskCollectionView({
-      collection: app.tasks,
+      collection: app.tasksCompleted,
       kind: "completed"
     });
     $taskViews.append(unassignedTasks.$el);

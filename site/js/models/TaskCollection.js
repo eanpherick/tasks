@@ -14,6 +14,7 @@ app.TaskCollection = Backbone.Collection.extend({
     this.fetch(); // returns and array of object. each obj is passed to new SharedTaskModel(obj)
   },
   taskAdded: function(e) {
+    console.log(Date.now() + " : " + this.collectionKind + " added ", e);
     var status = e.get("status");
     var creator = e.get("creator");
     var assignee = e.get("assignee");
@@ -37,6 +38,7 @@ app.TaskCollection = Backbone.Collection.extend({
     }
   },
   taskChanged: function(e) {
+    console.log(Date.now() + " : " + this.collectionKind + " changed ", e);
     var status = e.get("status");
     var creator = e.get("creator");
     var assignee = e.get("assignee");

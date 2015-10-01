@@ -16,8 +16,6 @@ app.HomePageView = Backbone.View.extend({
       url: "/tasks-user/" + app.currentUser.get("username"),
       collectionKind: "user"
     });
-    // TODO: make a new TaskCollection that is a constantly updated union of these three TaskCollections.
-
     this.render();
     $("#app").html(this.$el);
   },

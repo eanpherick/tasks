@@ -11,7 +11,6 @@ app.use(bodyParser.urlencoded({
   extended: false
 }));
 app.use(express.static(path.join(__dirname, 'site')));
-// app.use(express.static(__dirname));
 
 var tasks = [];
 var currentUser = null; // TODO: save the current user to a cookie so different browsers can have different users logged in.
@@ -65,16 +64,10 @@ app.delete('/tasks/:id', function(req, res) {
 
 // create a new Task
 app.post('/tasks', function(req, res) {
-  console.log("POST /tasks - ", req.body);
-  console.log('Receiving a new task...');
-
+  console.log("POST /tasks");
   db.post('tasks', req.body)
   .then(function(result) {
-    console.log(">> put in a thing <<");
-    console.log(result.path.key);
-    console.log(">> --- <<");
-    console.log();
-    res.send({id: result.path.key}); // TODO: actually send back more info? <-- Actually assigns the ID to the backbone model
+    res.send({id: result.path.key});
   })
   .fail(function(err) {
     res.end(); // TODO: actually post some kind of error message
@@ -121,9 +114,6 @@ app.get('/tasks-unassigned/:id', function(req, res) {
   .then(function(result) {
     var tasksArray = result.body.results.map(function(e) {
       return e.value;
-      // var task = e.value;
-      // task.id = e.path.key;
-      // return task;
     })
     res.send(tasksArray);
   })
@@ -131,33 +121,6 @@ app.get('/tasks-unassigned/:id', function(req, res) {
     console.log("ERROR");
     res.end();
   })
-});
-
-
-app.post('/tasks-unassigned', function(req, res) {
-  console.log("POST in unassigned: ", e.req.body);
-  res.end();
-})
-
-// set a single task model
-app.put('/tasks-unassigned/:id', function(req, res) {
-  console.log("PUT in unassigned: ", e.req.body);
-  // return the task if it should be added, else res.end();
-
-  // db.search('tasks', 'status:"unassigned"') // if `status === "unassigned"`
-  // .then(function(result) {
-  //   var tasksArray = result.body.results.map(function(e) {
-  //     var task = e.value;
-  //     task.id = e.path.key;
-  //     return task;
-  //   })
-  //   res.send(tasksArray);
-  // })
-  // .fail(function(err) {
-  //   console.log("ERROR");
-  //   res.end();
-  // })
-  res.end();
 });
 
 app.get('/tasks-completed', function(req, res) {
